@@ -15,12 +15,15 @@ public class GLManager {
     private static int glProgramHandle; //handle to the compiled shader program
     private static int colorUniformHandle; //handle to the color setting
     private static int positionAttributeHandle; //handle to the vertex position setting
+    private static int MVPMatrixHandle; //handle to the model-view-projection matrix
 
     //shader source code (could be loaded from textfile!)
     private final static String vertexShaderCode =
-            "attribute vec4 position;\n" + // Per-vertex position information we will pass in.
-                    "void main() {\n" + // The entry point for our vertex shader.
-                    "  gl_Position = position;\n" + // gl_Position is a special variable used to store the final position.
+            "uniform mat4 modelViewProjection;\n" + // A constant representing the combined model/view/projection matrix.
+                    "attribute vec4 position;\n" +      // Per-vertex position information that we will pass in.
+                    "void main() {\n" +                 // The entry point for our vertex shader.
+                    "    gl_Position = modelViewProjection\n" +    // gl_Position is a special variable used to store the final position.
+                    "        * position;\n" +// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
                     "}\n";
     private final static String fragmentShaderCode =
             "precision mediump float;\n" + //we don't need high precision floats for fragments
@@ -63,19 +66,20 @@ public class GLManager {
         // delete the shaders as they're linked into our program now and no longer necessary
         GLES20.glDeleteShader(vertex);
         GLES20.glDeleteShader(fragment);
-        //get the handles to our shader settings
-        //so that we can manipulate these later
+        //get the handles to our shader settings so that we can manipulate these later
         positionAttributeHandle = GLES20.glGetAttribLocation(glProgramHandle, "position");
         colorUniformHandle = GLES20.glGetUniformLocation(glProgramHandle, "color");
+        MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection");
         //activate the program
         GLES20.glUseProgram(glProgramHandle);
         checkGLError("buildProgram");
     }
 
-    public static void draw(final Mesh model, final float[] color){
-        setShaderColor(color);
-        uploadMesh(model._vertexBuffer);
-        drawMesh(model._drawMode, model._vertexCount);
+    private static void setModelViewProjection(final float[] modelViewMatrix) {
+        final int COUNT = 1;
+        final boolean TRANSPOSED = false;
+        GLES20.glUniformMatrix4fv(MVPMatrixHandle, COUNT, TRANSPOSED, modelViewMatrix, OFFSET);
+        checkGLError("setModelViewProjection");
     }
 
     private static void uploadMesh(final FloatBuffer vertexBuffer) {
@@ -87,6 +91,13 @@ public class GLManager {
                 GLES20.GL_FLOAT, NORMALIZED, Mesh.VERTEX_STRIDE,
                 vertexBuffer);
         checkGLError("uploadMesh");
+    }
+
+    public static void draw(final Mesh model, final float[] modelViewMatrix, final float[] color){
+        setShaderColor(color);
+        uploadMesh(model._vertexBuffer);
+        setModelViewProjection(modelViewMatrix);
+        drawMesh(model._drawMode, model._vertexCount);
     }
 
     private static void setShaderColor(final float[] color) {
