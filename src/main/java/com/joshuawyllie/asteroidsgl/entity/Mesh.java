@@ -14,6 +14,17 @@ public class Mesh {
     public static final int COORDS_PER_VERTEX = 3; //X, Y, Z
     // number of bytes per vertex
     public static final int VERTEX_STRIDE = COORDS_PER_VERTEX * SIZE_OF_FLOAT;
+    public static final int X = 0;
+    public static final int Y = 1;
+    public static final int Z = 2;
+
+
+    public float _width = 0f;
+    public float _height = 0f;
+    public float _depth = 0f;
+    public float _radius = 0f;
+    public Point3D _min = new Point3D(0.0f, 0.0f, 0.0f);
+    public Point3D _max = new Point3D(0.0f, 0.0f, 0.0f);
 
     public FloatBuffer _vertexBuffer = null;
     public int _vertexCount = 0;
@@ -47,5 +58,62 @@ public class Mesh {
         _vertexBuffer.put(geometry); //add the coordinates to the FloatBuffer
         _vertexBuffer.position(0); // set the buffer to read the first coordinate
         _vertexCount = geometry.length / COORDS_PER_VERTEX;
+        updateBounds();
+    }
+
+    public void flipX(){ flip(X); }
+    public void flipY(){ flip(Y); }
+    public void flipZ(){ flip(Z); }
+
+    public void flip(final int axis){
+        assert(axis == X || axis == Y || axis == Z);
+        _vertexBuffer.position(0);
+        for(int i = 0; i < _vertexCount; i++){
+            final int index = i*COORDS_PER_VERTEX + axis;
+            final float invertedCoordinate = _vertexBuffer.get(index) * -1;
+            _vertexBuffer.put(index, invertedCoordinate);
+        }
+        updateBounds();
+    }
+
+    public void updateBounds(){
+        float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE;
+        float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
+        for(int i = 0; i < _vertexCount*COORDS_PER_VERTEX; i+=COORDS_PER_VERTEX) {
+            final float x = _vertexBuffer.get(i+X);
+            final float y = _vertexBuffer.get(i+Y);
+            final float z = _vertexBuffer.get(i+Z);
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            minZ = Math.min(minZ, z);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+            maxZ = Math.max(maxZ, z);
+        }
+        _min = new Point3D(minX, minY, minZ);
+        _max = new Point3D(maxX, maxY, maxZ);
+        _width = maxX - minX;
+        _height = maxY - minY;
+        _depth = maxZ - minZ;
+        _radius = Math.max(Math.max(_width, _height), _depth) * 0.5f;
+    }
+
+    public float left() {
+        return _min._x;
+    }
+    public  float right() {
+        return _max._x;
+    }
+    public float top() {
+        return _min._y;
+    }
+    public float bottom() {
+        return _max._y;
+    }
+    public float centerX() {
+        return (_width * 0.5f);
+    }
+    public float centerY() {
+        return (_height * 0.5f);
     }
 }

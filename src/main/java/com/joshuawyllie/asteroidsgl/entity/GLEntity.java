@@ -8,21 +8,42 @@ import com.joshuawyllie.asteroidsgl.Game;
 import java.util.Objects;
 
 public class GLEntity {
-    public static final float[] modelMatrix = new float[4*4];
-    public static final float[] viewportModelMatrix = new float[4*4];
-    public static final float[] rotationViewportModelMatrix = new float[4*4];
+    public static final float[] modelMatrix = new float[4 * 4];
+    public static final float[] viewportModelMatrix = new float[4 * 4];
+    public static final float[] rotationViewportModelMatrix = new float[4 * 4];
     public static Game _game = null; //shared ref, managed by the Game-class!
     Mesh _mesh = null;
-    float _color[] = { 1.0f, 1.0f, 1.0f, 1.0f }; //default white
+    float _color[] = {1.0f, 1.0f, 1.0f, 1.0f}; //default white
     float _x = 0.0f;
     float _y = 0.0f;
     float _depth = 0.0f; //we'll use _depth for z-axis
     float _scale = 1f;
     float _rotation = 0f;
+    public float _velX = 0f;
+    public float _velY = 0f;
 
-    public GLEntity(){}
+    public GLEntity() {
+    }
 
-    public void update(final double dt) {}
+    public void update(final double dt) {
+        _x += _velX * dt;
+        _y += _velY * dt;
+
+        if (left() > Game.WORLD_WIDTH) {
+            setRight(0);
+        } else if (right() < 0) {
+            setLeft(Game.WORLD_WIDTH);
+        }
+
+        if(top() > Game.WORLD_HEIGHT){
+            setBottom(0);
+        }else if(bottom() < 0){
+            setTop(Game.WORLD_HEIGHT);
+        }
+
+        setColors(1, 1, 1, 1);
+        _rotation++;
+    }
 
     public void render(final float[] viewportMatrix) {
         final int OFFSET = 0;
@@ -43,17 +64,48 @@ public class GLEntity {
         GLManager.draw(_mesh, rotationViewportModelMatrix, _color);
     }
 
-    public void onCollision(final GLEntity that) {}
+    public void onCollision(final GLEntity that) {
+    }
 
-    public void setColors(final float[] colors){
+    public void setColors(final float[] colors) {
         Objects.requireNonNull(colors);
-        assert(colors.length >= 4);
+        assert (colors.length >= 4);
         setColors(colors[0], colors[1], colors[2], colors[3]);
     }
-    public void setColors(final float r, final float g, final float b, final float a){
+
+    public void setColors(final float r, final float g, final float b, final float a) {
         _color[0] = r; //red
         _color[1] = g; //green
         _color[2] = b; //blue
         _color[3] = a; //alpha (transparency)
+    }
+
+    public float left() {
+        return _x + _mesh.left();
+    }
+
+    public float right() {
+        return _x + _mesh.right();
+    }
+
+    public void setLeft(final float leftEdgePosition) {
+        _x = leftEdgePosition - _mesh.left();
+    }
+
+    public void setRight(final float rightEdgePosition) {
+        _x = rightEdgePosition - _mesh.right();
+    }
+
+    public float top() {
+        return _y+_mesh.top();
+    }
+    public float bottom() {
+        return _y + _mesh.bottom();
+    }
+    public void setTop(final float topEdgePosition) {
+        _y = topEdgePosition - _mesh.top();
+    }
+    public void setBottom(final float bottomEdgePosition) {
+        _y = bottomEdgePosition - _mesh.bottom();
     }
 }

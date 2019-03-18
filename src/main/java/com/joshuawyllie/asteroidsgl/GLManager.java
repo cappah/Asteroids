@@ -24,7 +24,9 @@ public class GLManager {
                     "void main() {\n" +                 // The entry point for our vertex shader.
                     "    gl_Position = modelViewProjection\n" +    // gl_Position is a special variable used to store the final position.
                     "        * position;\n" +// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
+                    "    gl_PointSize = 8.0;\n" + //pixel width of points
                     "}\n";
+
     private final static String fragmentShaderCode =
             "precision mediump float;\n" + //we don't need high precision floats for fragments
                     "uniform vec4 color;\n" + // a constant color to apply to all pixels
@@ -72,6 +74,7 @@ public class GLManager {
         MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection");
         //activate the program
         GLES20.glUseProgram(glProgramHandle);
+        GLES20.glLineWidth(10f); //draw lines 5px wide
         checkGLError("buildProgram");
     }
 
