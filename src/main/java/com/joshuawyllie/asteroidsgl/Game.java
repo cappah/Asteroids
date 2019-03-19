@@ -16,6 +16,7 @@ import com.joshuawyllie.asteroidsgl.entity.Text;
 import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -38,7 +39,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     private GLEntity player;
     private ArrayList<Star> _stars = new ArrayList<>();
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
-    private ArrayList<Text> _texts = new ArrayList<>();
+    private HashMap<TextKey, Text> _texts = new HashMap<>();
 
     // Create the projection Matrix. This is used to project the scene onto a 2D viewport.
     private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
@@ -48,6 +49,13 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     final double dt = 0.01;
     double accumulator = 0.0;
     double currentTime = System.nanoTime() * NANOSECONDS_TO_SECONDS;
+    public enum TextKey {
+        FPS,
+        SCORE
+    }
+    private double fpsTime = System.nanoTime() * NANOSECONDS_TO_SECONDS;
+    private int fpsCounter = 0;
+    private String fps = "10";
 
     public Game(Context context) {
         super(context);
@@ -73,14 +81,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
             asteroids.add(new Asteroid(r.nextInt((int) WORLD_WIDTH), r.nextInt((int) WORLD_HEIGHT), i + 3));
         }
 
-        final String s1 = "HELLO WORLD";
-        final String s2 = "0123456789";
-        final String s3 = ", - . : = ? [ ~";
-        final String s4 = "ABCDEFGHIJKLMNOPQRSTUVXYZ";
-        _texts.add(new Text(s1, 8, 8));
-        _texts.add(new Text(s2, 8, 16));
-        _texts.add(new Text(s3, 8, 24));
-        _texts.add(new Text(s4, 8, 32));
+        _texts.put(TextKey.FPS, new Text(fps, 2, 2));
 
         setRenderer(this);
     }
@@ -124,6 +125,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private void render() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); //clear buffer to background color
+        updateFPS();
         //setup a projection matrix by passing in the range of the game world that will be mapped by OpenGL to the screen.
         //TODO: encapsulate this in a Camera-class, let it "position" itself relative to an entity
         final int offset = 0;
@@ -142,9 +144,19 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         for (final Star s : _stars) {
             s.render(viewportMatrix);
         }
-        for (final Text t : _texts) {
+        for (final Text t : _texts.values()) {
             t.render(viewportMatrix);
         }
         player.render(viewportMatrix);
+    }
+
+    private void updateFPS() {
+        final double timeNow = System.nanoTime() * NANOSECONDS_TO_SECONDS;
+        if (timeNow - fpsTime > 1f) {
+            fpsTime = timeNow;
+            _texts.get(TextKey.FPS).setString(Integer.toString(fpsCounter));
+            fpsCounter = 0;
+        }
+        fpsCounter++;
     }
 }
