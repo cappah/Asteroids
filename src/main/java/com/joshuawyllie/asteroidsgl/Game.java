@@ -12,6 +12,8 @@ import com.joshuawyllie.asteroidsgl.entity.Border;
 import com.joshuawyllie.asteroidsgl.entity.GLEntity;
 import com.joshuawyllie.asteroidsgl.entity.Player;
 import com.joshuawyllie.asteroidsgl.entity.Star;
+import com.joshuawyllie.asteroidsgl.entity.Text;
+import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,10 +38,16 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     private GLEntity player;
     private ArrayList<Star> _stars = new ArrayList<>();
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
+    private ArrayList<Text> _texts = new ArrayList<>();
 
     // Create the projection Matrix. This is used to project the scene onto a 2D viewport.
     private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
     //storage
+    //trying a fixed time-step with accumulator, courtesy of
+//   https://gafferongames.com/post/fix_your_timestep/
+    final double dt = 0.01;
+    double accumulator = 0.0;
+    double currentTime = System.nanoTime() * NANOSECONDS_TO_SECONDS;
 
     public Game(Context context) {
         super(context);
@@ -53,9 +61,10 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private void init() {
         setEGLContextClientVersion(2);
-        setRenderer(this);
-        border = new Border(0f, 0f, WORLD_WIDTH, WORLD_HEIGHT);
-        player = new Player(WORLD_WIDTH / 2, 10);
+        setPreserveEGLContextOnPause(true); //context *may* be preserved and thus *may* avoid slow reloads when switching apps.
+        // we always re-create the OpenGL context in onSurfaceCreated, so we're safe either way.
+        border = new Border(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, WORLD_WIDTH, WORLD_HEIGHT);
+        player = new Player(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
         Random r = new Random();
         for (int i = 0; i < STAR_COUNT; i++) {
             _stars.add(new Star(r.nextInt((int) WORLD_WIDTH), r.nextInt((int) WORLD_HEIGHT)));
@@ -63,6 +72,17 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         for (int i = 0; i < ASTEROID_COUNT; i++) {
             asteroids.add(new Asteroid(r.nextInt((int) WORLD_WIDTH), r.nextInt((int) WORLD_HEIGHT), i + 3));
         }
+
+        final String s1 = "HELLO WORLD";
+        final String s2 = "0123456789";
+        final String s3 = ", - . : = ? [ ~";
+        final String s4 = "ABCDEFGHIJKLMNOPQRSTUVXYZ";
+        _texts.add(new Text(s1, 8, 8));
+        _texts.add(new Text(s2, 8, 16));
+        _texts.add(new Text(s3, 8, 24));
+        _texts.add(new Text(s4, 8, 32));
+
+        setRenderer(this);
     }
 
     @Override
@@ -87,12 +107,6 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         update(); //TODO: move updates away from the render thread...
         render();
     }
-
-    //trying a fixed time-step with accumulator, courtesy of
-//   https://gafferongames.com/post/fix_your_timestep/
-    final double dt = 0.01;
-    double accumulator = 0.0;
-    double currentTime = System.nanoTime() * NANOSECONDS_TO_SECONDS;
 
     private void update() {
         final double newTime = System.nanoTime() * NANOSECONDS_TO_SECONDS;
@@ -127,6 +141,9 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         }
         for (final Star s : _stars) {
             s.render(viewportMatrix);
+        }
+        for (final Text t : _texts) {
+            t.render(viewportMatrix);
         }
         player.render(viewportMatrix);
     }

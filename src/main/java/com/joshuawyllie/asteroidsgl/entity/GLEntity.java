@@ -2,8 +2,8 @@ package com.joshuawyllie.asteroidsgl.entity;
 
 import android.opengl.Matrix;
 
-import com.joshuawyllie.asteroidsgl.GLManager;
 import com.joshuawyllie.asteroidsgl.Game;
+import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 import java.util.Objects;
 
@@ -19,8 +19,11 @@ public class GLEntity {
     float _depth = 0.0f; //we'll use _depth for z-axis
     float _scale = 1f;
     float _rotation = 0f;
-    public float _velX = 0f;
-    public float _velY = 0f;
+    float _velX = 0f;
+    float _velY = 0f;
+    float _angVel = 0f;
+    float _width = 0.0f;
+    float _height = 0.0f;
 
     public GLEntity() {
     }
@@ -35,14 +38,14 @@ public class GLEntity {
             setLeft(Game.WORLD_WIDTH);
         }
 
-        if(top() > Game.WORLD_HEIGHT){
+        if (top() > Game.WORLD_HEIGHT) {
             setBottom(0);
-        }else if(bottom() < 0){
+        } else if (bottom() < 0) {
             setTop(Game.WORLD_HEIGHT);
         }
 
         setColors(1, 1, 1, 1);
-        _rotation++;
+        _rotation += _angVel;
     }
 
     public void render(final float[] viewportMatrix) {
@@ -80,6 +83,7 @@ public class GLEntity {
         _color[3] = a; //alpha (transparency)
     }
 
+
     public float left() {
         return _x + _mesh.left();
     }
@@ -97,14 +101,17 @@ public class GLEntity {
     }
 
     public float top() {
-        return _y+_mesh.top();
+        return _y + _mesh.top();
     }
+
     public float bottom() {
         return _y + _mesh.bottom();
     }
+
     public void setTop(final float topEdgePosition) {
         _y = topEdgePosition - _mesh.top();
     }
+
     public void setBottom(final float bottomEdgePosition) {
         _y = bottomEdgePosition - _mesh.bottom();
     }

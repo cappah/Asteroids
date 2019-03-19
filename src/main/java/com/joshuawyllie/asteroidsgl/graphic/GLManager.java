@@ -1,4 +1,4 @@
-package com.joshuawyllie.asteroidsgl;
+package com.joshuawyllie.asteroidsgl.graphic;
 
 import android.opengl.GLES20;
 import android.util.Log;
@@ -24,7 +24,7 @@ public class GLManager {
                     "void main() {\n" +                 // The entry point for our vertex shader.
                     "    gl_Position = modelViewProjection\n" +    // gl_Position is a special variable used to store the final position.
                     "        * position;\n" +// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
-                    "    gl_PointSize = 8.0;\n" + //pixel width of points
+                    "    gl_PointSize = 7.0;\n" + //pixel width of points
                     "}\n";
 
     private final static String fragmentShaderCode =
@@ -74,7 +74,7 @@ public class GLManager {
         MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection");
         //activate the program
         GLES20.glUseProgram(glProgramHandle);
-        GLES20.glLineWidth(10f); //draw lines 5px wide
+        GLES20.glLineWidth(4f); //draw lines 5px wide
         checkGLError("buildProgram");
     }
 
@@ -96,7 +96,7 @@ public class GLManager {
         checkGLError("uploadMesh");
     }
 
-    public static void draw(final Mesh model, final float[] modelViewMatrix, final float[] color){
+    public static void draw(final Mesh model, final float[] modelViewMatrix, final float[] color) {
         setShaderColor(color);
         uploadMesh(model._vertexBuffer);
         setModelViewProjection(modelViewMatrix);
@@ -111,7 +111,7 @@ public class GLManager {
     }
 
     private static void drawMesh(final int drawMode, final int vertexCount) {
-        assert(drawMode == GLES20.GL_TRIANGLES
+        assert (drawMode == GLES20.GL_TRIANGLES
                 || drawMode == GLES20.GL_LINES
                 || drawMode == GLES20.GL_POINTS);
         // draw the previously uploaded vertices
