@@ -3,15 +3,26 @@ package com.joshuawyllie.asteroidsgl;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.joshuawyllie.asteroidsgl.input.InputManager;
+import com.joshuawyllie.asteroidsgl.input.TouchController;
 
 public class MainActivity extends AppCompatActivity {
-    Game game;
+    private Game game;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        game = new Game(this);
-        setContentView(game);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_main);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        InputManager controls = (InputManager) new TouchController(findViewById(R.id.gamepad));
+        game = findViewById(R.id.game);
+        game.setInputManager(controls);
     }
 
     @Override

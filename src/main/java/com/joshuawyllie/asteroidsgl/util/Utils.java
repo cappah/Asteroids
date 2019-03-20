@@ -6,6 +6,10 @@ import android.util.Log;
 public abstract class Utils {
     public static final double TO_DEG = 180.0 / Math.PI;
     public static final double TO_RAD = Math.PI / 180.0;
+    public static final long MILLISECOND_IN_NANOSECONDS = 1000000;
+    public static final float NANOSECONDS_TO_MILLISECONDS = 1.0f / MILLISECOND_IN_NANOSECONDS;
+    public static final long SECOND_IN_NANOSECONDS = 1000000000;
+    public static final float NANOSECONDS_TO_SECONDS = 1.0f / SECOND_IN_NANOSECONDS;
 
     public static float wrap(float value, final float min, final float max) {
         if (value < min) {

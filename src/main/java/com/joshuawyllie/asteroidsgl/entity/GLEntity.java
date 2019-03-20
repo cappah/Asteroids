@@ -11,7 +11,7 @@ public class GLEntity {
     public static final float[] modelMatrix = new float[4 * 4];
     public static final float[] viewportModelMatrix = new float[4 * 4];
     public static final float[] rotationViewportModelMatrix = new float[4 * 4];
-    public static Game _game = null; //shared ref, managed by the Game-class!
+    public static Game game;
     Mesh _mesh = null;
     float _color[] = {1.0f, 1.0f, 1.0f, 1.0f}; //default white
     float _x = 0.0f;
@@ -114,5 +114,9 @@ public class GLEntity {
 
     public void setBottom(final float bottomEdgePosition) {
         _y = bottomEdgePosition - _mesh.bottom();
+    }
+
+    public static void setGame(Game game) {
+        GLEntity.game = game;
     }
 }

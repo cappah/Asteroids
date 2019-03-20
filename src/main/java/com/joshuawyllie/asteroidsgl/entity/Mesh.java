@@ -19,6 +19,7 @@ public class Mesh {
     public static final int X = 0;
     public static final int Y = 1;
     public static final int Z = 2;
+    public static final float[] POINT = {0,0,0};
 
 
     public float _width = 0f;
