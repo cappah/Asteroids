@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 import android.util.AttributeSet;
-import android.view.SurfaceHolder;
 
 import com.joshuawyllie.asteroidsgl.entity.Asteroid;
 import com.joshuawyllie.asteroidsgl.entity.Border;
@@ -27,16 +25,12 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
-    public static final float WORLD_WIDTH = 160; //all dimensions are in meters
-    public static final float WORLD_HEIGHT = 90f;
-    public static final float METERS_TO_SHOW_X = 160; //160m x 90m in view
-    public static final float METERS_TO_SHOW_Y = 90f; //TODO: calculate to match screen aspect ratio
     private static final int BG_COLOUR = Color.rgb(135, 206, 235);
     private static final int STAR_COUNT = 100;
     private static final int ASTEROID_COUNT = 10;
     private static final int BULLET_COUNT = (int) (Bullet.TIME_TO_LIVE / Player.TIME_BETWEEN_SHOTS) + 1;
 
-
+    private Context context = null;
     public InputManager inputManager = new InputManager(); //empty but valid default    //todo: make private
     private Hud hud = new Hud();
     private ViewPort viewPort = null;
@@ -48,10 +42,6 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
     Bullet[] _bullets = new Bullet[BULLET_COUNT];
 
-
-    // Create the projection Matrix. This is used to project the scene onto a 2D viewport.
-    private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
-    //storage
     //trying a fixed time-step with accumulator, courtesy of
 //   https://gafferongames.com/post/fix_your_timestep/
     final double dt = 0.01;
@@ -62,28 +52,29 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     public Game(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
     public Game(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
-    private void init() {
+    private void init(Context context) {
+        this.context = context;
         setEGLContextClientVersion(2);
         setPreserveEGLContextOnPause(true); //context *may* be preserved and thus *may* avoid slow reloads when switching apps.
         // we always re-create the OpenGL context in onSurfaceCreated, so we're safe either way.
         GLEntity.setGame(this);
-        viewPort = new ViewPort(720, 1080, METERS_TO_SHOW_X, METERS_TO_SHOW_Y, getHolder());
-        border = new Border(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, WORLD_WIDTH, WORLD_HEIGHT);
-        player = new Player(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
+        viewPort = new ViewPort(context);
+        border = new Border(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2, ViewPort.WORLD_WIDTH, ViewPort.WORLD_HEIGHT);
+        player = new Player(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2);
         Random r = new Random();
         for (int i = 0; i < STAR_COUNT; i++) {
-            _stars.add(new Star(r.nextInt((int) WORLD_WIDTH), r.nextInt((int) WORLD_HEIGHT)));
+            _stars.add(new Star(r.nextInt((int) ViewPort.WORLD_WIDTH), r.nextInt((int) ViewPort.WORLD_HEIGHT)));
         }
         for (int i = 0; i < ASTEROID_COUNT; i++) {
-            asteroids.add(new Asteroid(r.nextInt((int) WORLD_WIDTH), r.nextInt((int) WORLD_HEIGHT), i + 3));
+            asteroids.add(new Asteroid(r.nextInt((int) ViewPort.WORLD_WIDTH), r.nextInt((int) ViewPort.WORLD_HEIGHT), i + 3));
         }
         for (int i = 0; i < BULLET_COUNT; i++) {
             _bullets[i] = new Bullet();
@@ -101,11 +92,13 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         float blue = Color.blue(BG_COLOUR) / 255f;
         float alpha = 1f;
         GLES20.glClearColor(red, green, blue, alpha);
+        viewPort.onSurfaceCreated();
     }
 
     @Override
     public void onSurfaceChanged(final GL10 unused, final int width, final int height) {
         GLES20.glViewport(0, 0, width, height);
+        viewPort.onSurfaceChanged(width, height);
     }
 
     @Override
@@ -139,30 +132,23 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); //clear buffer to background color
         //setup a projection matrix by passing in the range of the game world that will be mapped by OpenGL to the screen.
         //TODO: encapsulate this in a Camera-class, let it "position" itself relative to an entity
-        final int offset = 0;
-        final float left = 0;
-        final float right = METERS_TO_SHOW_X;
-        final float bottom = METERS_TO_SHOW_Y;
-        final float top = 0;
-        final float near = 0f;
-        final float far = 1f;
-        Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
 
-        border.render(viewportMatrix);
+
+        border.render(viewPort.getViewportMatrix());
         for (final Asteroid a : asteroids) {
-            a.render(viewportMatrix);
+            a.render(viewPort.getViewportMatrix());
         }
         for (final Star s : _stars) {
-            s.render(viewportMatrix);
+            s.render(viewPort.getViewportMatrix());
         }
-        hud.render(viewportMatrix);
+        hud.render(viewPort.getViewportMatrix());
         for (final Bullet b : _bullets) {
             if (!b.isAlive()) {
                 continue;
             } //skip
-            b.render(viewportMatrix);
+            b.render(viewPort.getViewportMatrix());
         }
-        player.render(viewportMatrix);
+        player.render(viewPort.getViewportMatrix());
     }
 
 

@@ -1,24 +1,37 @@
 package com.joshuawyllie.asteroidsgl.display;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.PointF;
-import android.view.SurfaceHolder;
+import android.opengl.Matrix;
+import android.util.DisplayMetrics;
 
 import com.joshuawyllie.asteroidsgl.event.Event;
-import com.joshuawyllie.asteroidsgl.event.EventType;
 
-public class ViewPort implements SurfaceHolder.Callback {
-    private int screenWidth;
-    private int screenHeight;
-    private final float metersToShowX;
-    private final float metersToShowY;
+public class ViewPort {
+    public static final float WORLD_WIDTH = 160f; //all dimensions are in meters
+    public static final float WORLD_HEIGHT = 90f;
+    private final Context context;
     private final PointF lookAt = new PointF(0f, 0f);
 
-    public ViewPort(final int screenWidth, final int screenHeight, final float metersToShowX, final float metersToShowY, SurfaceHolder surfaceHolder) {
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-        this.metersToShowX = metersToShowX;
-        this.metersToShowY = metersToShowY;
-        surfaceHolder.addCallback(this);
+    private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
+    private final int offset = 0;
+    private float left = 0f;
+    private float right;
+    private float bottom;
+    private float top = 0f;
+    private final float near = 0f;
+    private final float far = 1f;
+
+    /**
+     * Defaults to letter boxing the screen
+     * @param context
+     */
+    public ViewPort(final Context context) {
+        this.context = context;
+        this.right = WORLD_WIDTH;
+        this.bottom = WORLD_HEIGHT;
+        Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
     }
 
     public void onEvent(Event event) {
@@ -28,19 +41,29 @@ public class ViewPort implements SurfaceHolder.Callback {
         }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
+    public void onSurfaceCreated() {
     }
 
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        this.screenWidth = width;
-        this.screenHeight = height;
+    public void onSurfaceChanged(int width, int height) {
+        float screenRatio = (float) width / (float) height;
+        float worldRatio = WORLD_WIDTH / WORLD_HEIGHT;
+        if (screenRatio > worldRatio) {
+            this.right = WORLD_HEIGHT * screenRatio;
+            this.bottom = WORLD_HEIGHT;
+            float xOffset = (this.right - WORLD_WIDTH) / 2f;
+            this.left -= xOffset;
+            this.right -= xOffset;
+        } else {
+            this.right = WORLD_WIDTH;
+            this.bottom = WORLD_WIDTH / screenRatio;
+            float yOffset = (this.bottom - WORLD_HEIGHT) / 2f;
+            this.bottom += yOffset;
+            this.top += yOffset;
+        }
+        Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
     }
 
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
+    public float[] getViewportMatrix() {
+        return this.viewportMatrix;
     }
 }

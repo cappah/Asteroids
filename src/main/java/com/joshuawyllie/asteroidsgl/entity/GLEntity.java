@@ -3,6 +3,7 @@ package com.joshuawyllie.asteroidsgl.entity;
 import android.opengl.Matrix;
 
 import com.joshuawyllie.asteroidsgl.Game;
+import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 import java.util.Objects;
@@ -32,16 +33,16 @@ public class GLEntity {
         _x += _velX * dt;
         _y += _velY * dt;
 
-        if (left() > Game.WORLD_WIDTH) {
+        if (left() > ViewPort.WORLD_WIDTH) {
             setRight(0);
         } else if (right() < 0) {
-            setLeft(Game.WORLD_WIDTH);
+            setLeft(ViewPort.WORLD_WIDTH);
         }
 
-        if (top() > Game.WORLD_HEIGHT) {
+        if (top() > ViewPort.WORLD_HEIGHT) {
             setBottom(0);
         } else if (bottom() < 0) {
-            setTop(Game.WORLD_HEIGHT);
+            setTop(ViewPort.WORLD_HEIGHT);
         }
 
         setColors(1, 1, 1, 1);

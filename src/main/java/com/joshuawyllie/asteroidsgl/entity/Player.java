@@ -2,7 +2,6 @@ package com.joshuawyllie.asteroidsgl.entity;
 
 import android.opengl.GLES20;
 
-import com.joshuawyllie.asteroidsgl.MainActivity;
 import com.joshuawyllie.asteroidsgl.util.Utils;
 
 public class Player extends GLEntity {
@@ -40,13 +39,13 @@ public class Player extends GLEntity {
         _velX *= DRAG;
         _velY *= DRAG;
         _bulletCooldown -= dt;
-        if(game.getInputManager()._pressingA && _bulletCooldown <= 0){
+        if (game.getInputManager()._pressingA && _bulletCooldown <= 0) {
             setColors(1, 0, 1, 1);
-            if(game.maybeFireBullet(this)){
+            if (game.maybeFireBullet(this)) {
                 _bulletCooldown = TIME_BETWEEN_SHOTS;
             }
-        }else{
-            setColors(1.0f, 1, 1,1);
+        } else {
+            setColors(1.0f, 1, 1, 1);
         }
         super.update(dt);
     }
