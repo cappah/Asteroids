@@ -5,16 +5,19 @@ import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 
+import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.entity.Asteroid;
 import com.joshuawyllie.asteroidsgl.entity.Border;
 import com.joshuawyllie.asteroidsgl.entity.Bullet;
 import com.joshuawyllie.asteroidsgl.entity.GLEntity;
 import com.joshuawyllie.asteroidsgl.entity.Player;
 import com.joshuawyllie.asteroidsgl.entity.Star;
+import com.joshuawyllie.asteroidsgl.event.Event;
+import com.joshuawyllie.asteroidsgl.event.EventReceiver;
 import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 import com.joshuawyllie.asteroidsgl.graphic.Hud;
-import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.input.InputManager;
 import com.joshuawyllie.asteroidsgl.util.Utils;
 
@@ -31,9 +34,11 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     private static final int BULLET_COUNT = (int) (Bullet.TIME_TO_LIVE / Player.TIME_BETWEEN_SHOTS) + 1;
 
     private Context context = null;
+    private ArrayList<EventReceiver> eventReceivers = new ArrayList<>();
     public InputManager inputManager = new InputManager(); //empty but valid default    //todo: make private
     private Hud hud = new Hud();
     private ViewPort viewPort = null;
+    private Jukebox jukebox = null;
 
     // entities
     private Border border;
@@ -47,7 +52,6 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     final double dt = 0.01;
     double accumulator = 0.0;
     double currentTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
-
 
 
     public Game(Context context) {
@@ -67,6 +71,9 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         // we always re-create the OpenGL context in onSurfaceCreated, so we're safe either way.
         GLEntity.setGame(this);
         viewPort = new ViewPort(context);
+        jukebox = new Jukebox(context);
+        // todo: uncomment this line again jukebox.resumeBgMusic();
+        eventReceivers.add(jukebox);
         border = new Border(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2, ViewPort.WORLD_WIDTH, ViewPort.WORLD_HEIGHT);
         player = new Player(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2);
         Random r = new Random();
@@ -92,7 +99,8 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         float blue = Color.blue(BG_COLOUR) / 255f;
         float alpha = 1f;
         GLES20.glClearColor(red, green, blue, alpha);
-        viewPort.onSurfaceCreated();
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        viewPort.onSurfaceCreated(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
     @Override
@@ -124,6 +132,8 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
                 } //skip
                 b.update(dt);
             }
+            collisionDetection();
+            removeDeadEntities();
             accumulator -= dt;
         }
     }
@@ -151,6 +161,48 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         player.render(viewPort.getViewportMatrix());
     }
 
+    private void collisionDetection() {
+        for (final Bullet b : _bullets) {
+            if (b.isDead()) {
+                continue;
+            } //skip dead bullets
+            for (final Asteroid a : asteroids) {
+                if (b.isColliding(a)) {
+                    if (a.isDead()) {
+                        continue;
+                    }
+                    b.onCollision(a); //notify each entity so they can decide what to do
+                    a.onCollision(b);
+                }
+            }
+        }
+        for (final Asteroid a : asteroids) {
+            if (a.isDead()) {
+                continue;
+            }
+            if (player.isColliding(a)) {
+                player.onCollision(a);
+                a.onCollision(player);
+            }
+        }
+    }
+
+    public void onEventReceived(Event event) {
+        for (EventReceiver eventReceiver : eventReceivers) {
+            eventReceiver.onEvent(event);
+        }
+    }
+
+    private void removeDeadEntities() {
+        Asteroid temp;
+        final int count = asteroids.size();
+        for (int i = count - 1; i >= 0; i--) {
+            temp = asteroids.get(i);
+            if (temp.isDead()) {
+                asteroids.remove(i);
+            }
+        }
+    }
 
     public boolean maybeFireBullet(final GLEntity source) {
         for (final Bullet b : _bullets) {

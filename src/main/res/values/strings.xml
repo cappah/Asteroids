@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AsteroidsGL</string>
+    <string name="shoot_sound">sfx/shoot.wav</string>
 </resources>

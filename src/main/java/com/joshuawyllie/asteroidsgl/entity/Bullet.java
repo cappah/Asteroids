@@ -2,6 +2,9 @@ package com.joshuawyllie.asteroidsgl.entity;
 
 import android.opengl.GLES20;
 
+import com.joshuawyllie.asteroidsgl.event.Event;
+import com.joshuawyllie.asteroidsgl.event.EventType;
+
 public class Bullet extends GLEntity {
     private static Mesh BULLET_MESH = new Mesh(Mesh.POINT, GLES20.GL_POINTS); //Q&D pool, Mesh.POINT is just [0,0,0] float array
     private static final float TO_RADIANS = (float)Math.PI/180.0f;
@@ -23,9 +26,14 @@ public class Bullet extends GLEntity {
         _velX += (float)Math.sin(theta) * SPEED;
         _velY -= (float)Math.cos(theta) * SPEED;
         _ttl = TIME_TO_LIVE;
+        game.onEventReceived(new Event(EventType.SHOOT));
     }
     public boolean isAlive(){
         return _ttl > 0;
+    }
+    @Override
+    public boolean isDead(){
+        return _ttl < 1;
     }
     @Override
     public void update(double dt) {

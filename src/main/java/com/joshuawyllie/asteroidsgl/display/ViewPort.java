@@ -6,13 +6,16 @@ import android.graphics.PointF;
 import android.opengl.Matrix;
 import android.util.DisplayMetrics;
 
+import com.joshuawyllie.asteroidsgl.entity.GLEntity;
 import com.joshuawyllie.asteroidsgl.event.Event;
 
 public class ViewPort {
     public static final float WORLD_WIDTH = 160f; //all dimensions are in meters
     public static final float WORLD_HEIGHT = 90f;
+    private static int widthPixels = 0;
+    private static int heightPixels = 0;
     private final Context context;
-    private final PointF lookAt = new PointF(0f, 0f);
+    private PointF lookAt = new PointF(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 0.5f);
 
     private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
     private final int offset = 0;
@@ -34,6 +37,17 @@ public class ViewPort {
         Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
     }
 
+    public void lookAt(PointF point) {
+        this.lookAt = point;
+        updateViewPort();
+    }
+
+    public void lookAt(GLEntity entity) {
+        this.lookAt = entity.getPos();
+        updateViewPort();
+    }
+
+
     public void onEvent(Event event) {
         switch (event.getType()) {
             case SURFACE_CHANGED:
@@ -41,29 +55,50 @@ public class ViewPort {
         }
     }
 
-    public void onSurfaceCreated() {
+    public void onSurfaceCreated(int widthPixels, int heightPixels) {
+        this.widthPixels = widthPixels;
+        this.heightPixels = heightPixels;
+        updateViewPort();
     }
 
-    public void onSurfaceChanged(int width, int height) {
-        float screenRatio = (float) width / (float) height;
-        float worldRatio = WORLD_WIDTH / WORLD_HEIGHT;
+    public void onSurfaceChanged(int widthPixels, int heightPixels) {
+        this.widthPixels = widthPixels;
+        this.heightPixels = heightPixels;
+        updateViewPort();
+    }
+
+    private void updateViewPort() {
+        final float screenRatio = (float) widthPixels / (float) heightPixels;
+        final float worldRatio = WORLD_WIDTH / WORLD_HEIGHT;
+        float xOffset = 0;
+        float yOffset = 0;
         if (screenRatio > worldRatio) {
             this.right = WORLD_HEIGHT * screenRatio;
             this.bottom = WORLD_HEIGHT;
-            float xOffset = (this.right - WORLD_WIDTH) / 2f;
-            this.left -= xOffset;
-            this.right -= xOffset;
+            xOffset = lookAt.x - WORLD_WIDTH * 0.5f;
+            xOffset += (this.right - WORLD_WIDTH) * 0.5f;
         } else {
             this.right = WORLD_WIDTH;
             this.bottom = WORLD_WIDTH / screenRatio;
-            float yOffset = (this.bottom - WORLD_HEIGHT) / 2f;
-            this.bottom += yOffset;
-            this.top += yOffset;
+            yOffset = lookAt.y - WORLD_HEIGHT * 0.5f;
+            yOffset += (this.bottom - WORLD_HEIGHT) * 0.5f;
         }
-        Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
+        Matrix.orthoM(viewportMatrix, offset, left - xOffset, right - xOffset, bottom + yOffset, top + yOffset, near, far);
     }
 
     public float[] getViewportMatrix() {
         return this.viewportMatrix;
+    }
+
+    public PointF worldCenter() {
+        return new PointF(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 0.5f);
+    }
+
+    public float viewPortWidthMeters() {
+        return right - left;
+    }
+
+    public float viewPortHeightMeters() {
+        return top - bottom;
     }
 }

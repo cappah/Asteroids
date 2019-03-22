@@ -71,4 +71,12 @@ public class Player extends GLEntity {
         //ask the super class (GLEntity) to render us
         super.render(viewportMatrix);
     }
+
+    @Override
+    public boolean isColliding(GLEntity that) {
+        if (this == that) {
+            throw new AssertionError("isColliding: You shouldn't test Entities against themselves!");
+        }
+        return GLEntity.isBoundingSpheresOverlapping(this, that);
+    }
 }
