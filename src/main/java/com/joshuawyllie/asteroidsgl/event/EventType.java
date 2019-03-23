@@ -4,6 +4,6 @@ public enum EventType {
     SURFACE_CHANGED,
     DEATH,
     SHOOT,
-    HIT,
-    ASTROID_BREAK
+    PLAYER_HIT,
+    ASTEROID_SHOT
 }

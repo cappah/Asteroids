@@ -7,9 +7,10 @@ import com.joshuawyllie.asteroidsgl.graphic.GLPixelFont;
 
 public class Text extends GLEntity {
     public static final GLPixelFont FONT = new GLPixelFont();
-    public static float GLYPH_WIDTH = FONT.WIDTH;
-    public static float GLYPH_HEIGHT = FONT.HEIGHT;
-    public static float GLYPH_SPACING = 0f;
+    public static final float GLYPH_WIDTH = FONT.WIDTH;
+    public static final float GLYPH_HEIGHT = FONT.HEIGHT;
+    private static final float GLYPH_SPACING = 0.7f;
+    public static final float SCALE = 0.5f;
 
     Mesh[] _meshes = null;
     private float _spacing = GLYPH_SPACING; //spacing between characters
@@ -20,7 +21,7 @@ public class Text extends GLEntity {
         setString(s);
         _x = x;
         _y = y;
-        setScale(0.75f); //TODO: magic value
+        setScale(SCALE);
     }
 
 
@@ -48,5 +49,13 @@ public class Text extends GLEntity {
 
     public void setString(final String s) {
         _meshes = FONT.getString(s);
+    }
+
+    public float width() {
+        return (_glyphWidth + _spacing) * _meshes.length - _spacing;
+    }
+
+    public float height() {
+        return _glyphHeight;
     }
 }

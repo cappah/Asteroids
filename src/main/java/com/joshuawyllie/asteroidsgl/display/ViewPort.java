@@ -11,6 +11,7 @@ public class ViewPort {
     public enum ViewPortMode { LETTER_BOX, FILL }
     public static final float WORLD_WIDTH = 160f; //all dimensions are in meters
     public static float WORLD_HEIGHT = 90f;
+    private static float ZOOM = 1f;     // partial implementation
     private int widthPixels = 0;
     private int heightPixels = 0;
     private final Context context;
@@ -111,7 +112,7 @@ public class ViewPort {
             yOffset = lookAt.y - WORLD_HEIGHT * 0.5f;
             yOffset += (this.bottom - WORLD_HEIGHT) * 0.5f;
         }
-        Matrix.orthoM(viewportMatrix, offset, left + xOffset, right + xOffset, bottom + yOffset, top + yOffset, near, far);
+        Matrix.orthoM(viewportMatrix, offset, (left + xOffset) / ZOOM, (right + xOffset) / ZOOM, (bottom + yOffset) / ZOOM, (top + yOffset) / ZOOM, near, far);
     }
 
     private void updateViewPortFill() {
@@ -120,8 +121,7 @@ public class ViewPort {
         this.bottom = WORLD_HEIGHT;
         float xOffset = lookAt.x - WORLD_WIDTH * 0.5f;
         float yOffset = lookAt.y - WORLD_HEIGHT * 0.5f;
-        Matrix.orthoM(viewportMatrix, offset, left + xOffset, right + xOffset, bottom + yOffset , top + yOffset, near, far);
-
+        Matrix.orthoM(viewportMatrix, offset, (left + xOffset) / ZOOM, (right + xOffset) / ZOOM, (bottom + yOffset) / ZOOM, (top + yOffset) / ZOOM, near, far);
     }
 
     public float[] getViewportMatrix() {

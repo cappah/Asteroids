@@ -56,8 +56,9 @@ public class Jukebox implements EventReceiver {
         soundsMap = new HashMap<>();
         //loadEventSound(EventType.DEATH, context.getString(R.string.death_sound));
         loadEventSound(EventType.SHOOT, "sfx/shoot.wav");
-        loadEventSound(EventType.HIT, "sfx/hit.wav");
-        loadEventSound(EventType.ASTROID_BREAK, "sfx/asteroid_break.wav");
+        loadEventSound(EventType.PLAYER_HIT, "sfx/hit.wav");
+        loadEventSound(EventType.ASTEROID_SHOT, "sfx/asteroid_break.wav");
+        loadEventSound(EventType.DEATH, "sfx/death.wav");
     }
 
     public void onEvent(Event event) {

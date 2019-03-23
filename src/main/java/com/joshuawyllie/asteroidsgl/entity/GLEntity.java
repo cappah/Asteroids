@@ -5,11 +5,13 @@ import android.opengl.Matrix;
 
 import com.joshuawyllie.asteroidsgl.Game;
 import com.joshuawyllie.asteroidsgl.display.ViewPort;
+import com.joshuawyllie.asteroidsgl.event.Event;
+import com.joshuawyllie.asteroidsgl.event.EventReceiver;
 import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 import java.util.Objects;
 
-public class GLEntity {
+public class GLEntity implements EventReceiver {
     public static final float[] modelMatrix = new float[4 * 4];
     public static final float[] viewportModelMatrix = new float[4 * 4];
     public static final float[] rotationViewportModelMatrix = new float[4 * 4];
@@ -146,6 +148,11 @@ public class GLEntity {
                 || b.right() <= a.left()
                 || a.bottom() <= b.top()
                 || b.bottom() <= a.top());
+    }
+
+
+    @Override
+    public void onEvent(Event event) {
     }
 
     public void setColors(final float[] colors) {

@@ -27,7 +27,7 @@ public class Bullet extends GLEntity {
         _velX += (float) Math.sin(theta) * SPEED;
         _velY -= (float) Math.cos(theta) * SPEED;
         _ttl = TIME_TO_LIVE;
-        game.onEventReceived(new Event(EventType.SHOOT));
+        game.broadcastEvent(new Event(EventType.SHOOT));
     }
 
     public boolean isAlive() {

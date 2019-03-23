@@ -38,4 +38,9 @@ public class Flame extends GLEntity {
         _y = entity._y - (float) Math.cos(_rotation * Utils.TO_RAD) * entity._height * ENTITY_OFFSET;
        _rotation = entity._rotation + (float) Utils.CIRCLE_DEG * 0.5f;
    }
+
+    public void setSize(final float width, final float height) {
+        this._width = width;
+        this._height = height;
+    }
 }
