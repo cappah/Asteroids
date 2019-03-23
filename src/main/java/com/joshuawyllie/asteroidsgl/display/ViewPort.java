@@ -1,21 +1,21 @@
 package com.joshuawyllie.asteroidsgl.display;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.Matrix;
-import android.util.DisplayMetrics;
 
 import com.joshuawyllie.asteroidsgl.entity.GLEntity;
 import com.joshuawyllie.asteroidsgl.event.Event;
 
 public class ViewPort {
+    public enum ViewPortMode { LETTER_BOX, FILL }
     public static final float WORLD_WIDTH = 160f; //all dimensions are in meters
-    public static final float WORLD_HEIGHT = 90f;
-    private static int widthPixels = 0;
-    private static int heightPixels = 0;
+    public static float WORLD_HEIGHT = 90f;
+    private int widthPixels = 0;
+    private int heightPixels = 0;
     private final Context context;
     private PointF lookAt = new PointF(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 0.5f);
+    private ViewPortMode mode;
 
     private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
     private final int offset = 0;
@@ -30,8 +30,9 @@ public class ViewPort {
      * Defaults to letter boxing the screen
      * @param context
      */
-    public ViewPort(final Context context) {
+    public ViewPort(final Context context, final ViewPortMode mode) {
         this.context = context;
+        this.mode = mode;
         this.right = WORLD_WIDTH;
         this.bottom = WORLD_HEIGHT;
         Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
@@ -39,12 +40,12 @@ public class ViewPort {
 
     public void lookAt(PointF point) {
         this.lookAt = point;
-        updateViewPort();
+        updateViewPortLetterBox();
     }
 
     public void lookAt(GLEntity entity) {
         this.lookAt = entity.getPos();
-        updateViewPort();
+        updateViewPortLetterBox();
     }
 
 
@@ -58,16 +59,27 @@ public class ViewPort {
     public void onSurfaceCreated(int widthPixels, int heightPixels) {
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-        updateViewPort();
+        updateViewport();
     }
 
     public void onSurfaceChanged(int widthPixels, int heightPixels) {
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
-        updateViewPort();
+        updateViewport();
     }
 
-    private void updateViewPort() {
+    private void updateViewport() {
+        switch (mode) {
+            case FILL:
+                updateViewPortFill();
+                break;
+            case LETTER_BOX:
+                updateViewPortLetterBox();
+                break;
+        }
+    }
+
+    private void updateViewPortLetterBox() {
         final float screenRatio = (float) widthPixels / (float) heightPixels;
         final float worldRatio = WORLD_WIDTH / WORLD_HEIGHT;
         float xOffset = 0;
@@ -84,6 +96,15 @@ public class ViewPort {
             yOffset += (this.bottom - WORLD_HEIGHT) * 0.5f;
         }
         Matrix.orthoM(viewportMatrix, offset, left - xOffset, right - xOffset, bottom + yOffset, top + yOffset, near, far);
+    }
+
+    private void updateViewPortFill() {
+        final float screenRatio = (float) widthPixels / (float) heightPixels;
+
+        WORLD_HEIGHT = WORLD_WIDTH / screenRatio;
+        this.bottom = WORLD_HEIGHT;
+        Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
+
     }
 
     public float[] getViewportMatrix() {

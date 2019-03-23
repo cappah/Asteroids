@@ -53,7 +53,6 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     double accumulator = 0.0;
     double currentTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
 
-
     public Game(Context context) {
         super(context);
         init(context);
@@ -70,7 +69,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         setPreserveEGLContextOnPause(true); //context *may* be preserved and thus *may* avoid slow reloads when switching apps.
         // we always re-create the OpenGL context in onSurfaceCreated, so we're safe either way.
         GLEntity.setGame(this);
-        viewPort = new ViewPort(context);
+        viewPort = new ViewPort(context, ViewPort.ViewPortMode.FILL);
         jukebox = new Jukebox(context);
         // todo: uncomment this line again jukebox.resumeBgMusic();
         eventReceivers.add(jukebox);
@@ -101,17 +100,19 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         GLES20.glClearColor(red, green, blue, alpha);
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         viewPort.onSurfaceCreated(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        border.updateDimentions(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2, ViewPort.WORLD_WIDTH, ViewPort.WORLD_HEIGHT);
     }
 
     @Override
     public void onSurfaceChanged(final GL10 unused, final int width, final int height) {
         GLES20.glViewport(0, 0, width, height);
         viewPort.onSurfaceChanged(width, height);
+        border.updateDimentions(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2, ViewPort.WORLD_WIDTH, ViewPort.WORLD_HEIGHT);
     }
 
     @Override
     public void onDrawFrame(final GL10 unused) {
-        update(); //TODO: move updates away from the render thread...
+        update();
         render();
     }
 
@@ -140,10 +141,6 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private void render() {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); //clear buffer to background color
-        //setup a projection matrix by passing in the range of the game world that will be mapped by OpenGL to the screen.
-        //TODO: encapsulate this in a Camera-class, let it "position" itself relative to an entity
-
-
         border.render(viewPort.getViewportMatrix());
         for (final Asteroid a : asteroids) {
             a.render(viewPort.getViewportMatrix());
