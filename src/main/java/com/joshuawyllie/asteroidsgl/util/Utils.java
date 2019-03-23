@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.util.Log;
 
 public abstract class Utils {
+    public static final double CIRCLE_DEG = 360;
     public static final double TO_DEG = 180.0 / Math.PI;
     public static final double TO_RAD = Math.PI / 180.0;
     public static final long MILLISECOND_IN_NANOSECONDS = 1000000;
