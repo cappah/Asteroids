@@ -15,6 +15,7 @@ public class ViewPort {
     private int heightPixels = 0;
     private final Context context;
     private PointF lookAt = new PointF(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 0.5f);
+    private boolean hasInitLookAt = false;
     private ViewPortMode mode;
 
     private float[] viewportMatrix = new float[4 * 4]; //In essence, it is our our Camera
@@ -40,14 +41,19 @@ public class ViewPort {
 
     public void lookAt(PointF point) {
         this.lookAt = point;
-        updateViewPortLetterBox();
+        updateViewport();
     }
 
     public void lookAt(GLEntity entity) {
         this.lookAt = entity.getPos();
-        updateViewPortLetterBox();
+        updateViewport();
     }
 
+    private void lookAtCenter() {
+        this.lookAt.x = WORLD_WIDTH / 2f;
+        this.lookAt.y = WORLD_HEIGHT / 2f;
+        updateViewport();
+    }
 
     public void onEvent(Event event) {
         switch (event.getType()) {
@@ -65,6 +71,12 @@ public class ViewPort {
     public void onSurfaceChanged(int widthPixels, int heightPixels) {
         this.widthPixels = widthPixels;
         this.heightPixels = heightPixels;
+        if (mode == ViewPortMode.FILL) {
+            final float screenRatio = (float) widthPixels / (float) heightPixels;
+            WORLD_HEIGHT = WORLD_WIDTH / screenRatio;
+            lookAt.x = WORLD_WIDTH * 0.5f;
+            lookAt.y = WORLD_HEIGHT * 0.5f;
+        }
         updateViewport();
     }
 
@@ -72,6 +84,10 @@ public class ViewPort {
         switch (mode) {
             case FILL:
                 updateViewPortFill();
+                if (!hasInitLookAt) {
+                    hasInitLookAt = true;
+                    lookAtCenter();
+                }
                 break;
             case LETTER_BOX:
                 updateViewPortLetterBox();
@@ -95,15 +111,16 @@ public class ViewPort {
             yOffset = lookAt.y - WORLD_HEIGHT * 0.5f;
             yOffset += (this.bottom - WORLD_HEIGHT) * 0.5f;
         }
-        Matrix.orthoM(viewportMatrix, offset, left - xOffset, right - xOffset, bottom + yOffset, top + yOffset, near, far);
+        Matrix.orthoM(viewportMatrix, offset, left + xOffset, right + xOffset, bottom + yOffset, top + yOffset, near, far);
     }
 
     private void updateViewPortFill() {
         final float screenRatio = (float) widthPixels / (float) heightPixels;
-
         WORLD_HEIGHT = WORLD_WIDTH / screenRatio;
         this.bottom = WORLD_HEIGHT;
-        Matrix.orthoM(viewportMatrix, offset, left, right, bottom, top, near, far);
+        float xOffset = lookAt.x - WORLD_WIDTH * 0.5f;
+        float yOffset = lookAt.y - WORLD_HEIGHT * 0.5f;
+        Matrix.orthoM(viewportMatrix, offset, left + xOffset, right + xOffset, bottom + yOffset , top + yOffset, near, far);
 
     }
 

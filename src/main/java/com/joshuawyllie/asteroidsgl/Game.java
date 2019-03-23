@@ -126,6 +126,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
                 a.update(dt);
             }
             player.update(dt);
+            viewPort.lookAt(player);
             hud.update(dt);
             for (final Bullet b : _bullets) {
                 if (!b.isAlive()) {
