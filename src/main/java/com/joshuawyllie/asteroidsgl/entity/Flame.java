@@ -10,9 +10,7 @@ public class Flame extends GLEntity {
     private static final float ENTITY_OFFSET = 0.75f;
 
     public Flame(final float x, final float y) {
-        super();
-        _x = x;
-        _y = y;
+        super(x, y);
         _width = INIT_WIDTH;
         _height = INIT_HEIGHT;
         float vertices[] = { // in counterclockwise order:

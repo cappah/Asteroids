@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.entity.Asteroid;
@@ -25,23 +26,31 @@ import com.joshuawyllie.asteroidsgl.util.Random;
 import com.joshuawyllie.asteroidsgl.util.Utils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
+public class Game extends GLSurfaceView implements GLSurfaceView.Renderer, EventReceiver {
+    private static final String TAG = "Game";
     private static final int BG_COLOUR = Color.rgb(0, 0, 15);
     private static final int STAR_COUNT = 100;
-    private static final int INIT_ASTEROID_COUNT = 4;
+    private static final int INIT_ASTEROID_COUNT = 3;
     private static final int BULLET_COUNT = (int) (Bullet.TIME_TO_LIVE / Player.TIME_BETWEEN_SHOTS) + 1;
     public static final int INIT_LEVEL = 1;
+    private static final double GAME_OVER_DELAY = 2f;
 
     private Context context = null;
     private ArrayList<EventReceiver> eventReceivers = new ArrayList<>();
+    private ArrayList<EventReceiver> eventReceiversToRemove = new ArrayList<>();
+    private ArrayList<EventReceiver> eventReceiversToAdd = new ArrayList<>();
     private InputManager inputManager = new InputManager(); //empty but valid default
     private Hud hud = null;
     private ViewPort viewPort = null;
     private Jukebox jukebox = null;
+    private Queue<Event> eventQueue = new LinkedList<>();
 
     // entities
     private Border border;
@@ -54,11 +63,13 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     private ArrayList<Explosion> explosionsToAdd = new ArrayList<>();
 
     //trying a fixed time-step with accumulator, courtesy of
-//   https://gafferongames.com/post/fix_your_timestep/
+    //https://gafferongames.com/post/fix_your_timestep/
     final double dt = 0.01;
     double accumulator = 0.0;
     double currentTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
     private int level = INIT_LEVEL;
+    private boolean gameIsOver = false;
+    private double gameOverDelayCounter = GAME_OVER_DELAY;
 
     public Game(Context context) {
         super(context);
@@ -85,15 +96,17 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         for (int i = 0; i < STAR_COUNT; i++) {
             _stars.add(new Star(Random.between(0, ViewPort.WORLD_WIDTH), Random.between(0, ViewPort.WORLD_HEIGHT)));
         }
-        for (int i = 0; i < INIT_ASTEROID_COUNT; i++) {
+        for (int i = 0; i < INIT_ASTEROID_COUNT + level; i++) {
             asteroids.add(new Asteroid(Random.between(0, ViewPort.WORLD_WIDTH), Random.between(0, ViewPort.WORLD_HEIGHT), Asteroid.INIT_SIZE));
         }
         for (int i = 0; i < BULLET_COUNT; i++) {
             _bullets[i] = new Bullet();
         }
         explosions.add(new Explosion(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2));
-        eventReceivers.add(jukebox);
-        eventReceivers.add(player);
+        registerEventReceiver(this);
+        registerEventReceiver(jukebox);
+        registerEventReceiver(player);
+        registerEventReceiver(hud);
         setRenderer(this);
     }
 
@@ -150,6 +163,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
             for (Explosion explosion : explosions) {
                 explosion.update(dt);
             }
+            updateEventQueue();
             collisionDetection();
             removeDeadEntities();
             addEntitiesToAdd();
@@ -158,11 +172,32 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         }
     }
 
+    private void updateEventQueue() {
+        while (!eventQueue.isEmpty()) {
+            Event currentEvent = eventQueue.remove();
+            eventReceivers.removeAll(eventReceiversToRemove);
+            eventReceiversToRemove.clear();
+            eventReceivers.addAll(eventReceiversToAdd);
+            eventReceiversToAdd.clear();
+            for (EventReceiver eventReceiver : eventReceivers) {
+                eventReceiver.onEvent(currentEvent);
+            }
+        }
+    }
+
     private void updateLevel() {
         if (asteroids.isEmpty()) {
-            level++;
             for (int i = 0; i < INIT_ASTEROID_COUNT + level; i++) {
                 asteroids.add(new Asteroid(Random.between(0, ViewPort.WORLD_WIDTH), Random.between(0, ViewPort.WORLD_HEIGHT), Asteroid.INIT_SIZE));
+            }
+            level++;
+        }
+        if (gameIsOver) {
+            gameOverDelayCounter -= dt;
+            if (inputManager.isPressing() && gameOverDelayCounter < 0) {
+                gameIsOver = false;
+                gameOverDelayCounter = GAME_OVER_DELAY;
+                broadcastEvent(new Event(EventType.RESTART));
             }
         }
     }
@@ -199,7 +234,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
                     if (asteroid.isDead() || asteroid.isRecovering()) {
                         continue;
                     }
-                    onAsteroidShot(bullet, asteroid);
+                    broadcastEvent(new Event(EventType.ASTEROID_SHOT, asteroid, bullet));
                 }
             }
         }
@@ -208,14 +243,12 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
                 continue;
             }
             if (player.isColliding(asteroid)) {
-                player.onCollision(asteroid);
-                asteroid.onCollision(player);
-                broadcastEvent(new Event(EventType.PLAYER_HIT));
+                broadcastEvent(new Event(EventType.PLAYER_HIT, asteroid));
             }
         }
     }
 
-    private void onAsteroidShot(Bullet bullet, Asteroid asteroid) {
+    private void onAsteroidShot(Asteroid asteroid, Bullet bullet) {
         bullet.onCollision(asteroid); //notify each entity so they can decide what to do
         asteroid.onCollision(bullet);
         if (asteroid.getSize() > 1) {
@@ -223,13 +256,13 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
             asteroidsToAdd.add(new Asteroid(asteroid.getX(), asteroid.getY(), asteroid.getSize() - 1));
         }
         explosionsToAdd.add(new Explosion(asteroid.getX(), asteroid.getY()));
-        broadcastEvent(new Event(EventType.ASTEROID_SHOT, asteroid, bullet));
+
     }
 
-    public void broadcastEvent(Event event) {
-        for (EventReceiver eventReceiver : eventReceivers) {
-            eventReceiver.onEvent(event);
-        }
+    private void onPlayerAsteroidCollision(Asteroid asteroid) {
+        player.onCollision(asteroid);
+        explosionsToAdd.add(new Explosion(player.getPos().x, player.getPos().y));
+        asteroid.onCollision(player);
     }
 
     private void removeDeadEntities() {
@@ -275,4 +308,40 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     public InputManager getInputManager() {
         return this.inputManager;
     }
+
+    public void broadcastEvent(Event event) {
+        eventQueue.add(event);
+    }
+
+    public void registerEventReceiver(EventReceiver eventReceiver) {
+        eventReceiversToAdd.add(eventReceiver);
+    }
+
+    public void unregisterEventReceiver(EventReceiver eventReceiver) {
+        eventReceiversToRemove.remove(eventReceiver);
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        try {
+            switch (event.getType()) {
+                case ASTEROID_SHOT:
+                    onAsteroidShot((Asteroid) event.getEntitiesInvolved().get(0), (Bullet) event.getEntitiesInvolved().get(1));
+                    break;
+                case PLAYER_HIT:
+                    onPlayerAsteroidCollision((Asteroid) event.getEntitiesInvolved().get(0));
+                    break;
+                case DEATH:
+                    gameIsOver = true;
+                    break;
+                case RESTART:
+                    gameIsOver = false;
+                    level = INIT_LEVEL;
+                    break;
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getMessage());
+        }
+    }
+
 }

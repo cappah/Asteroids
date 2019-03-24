@@ -8,9 +8,7 @@ public class Border extends GLEntity {
     public static float BORDER_MARGIN = 1f;
 
     public Border(final float x, final float y, final float worldWidth, final float worldHeight) {
-        super();
-        _x = x;
-        _y = y;
+        super(x, y);
         _width = worldWidth - BORDER_MARGIN; //-1 so the border isn't obstructed by the screen edge
         _height = worldHeight - BORDER_MARGIN;
         setColors(1f, 0f, 0f, 1f); //RED for visibility

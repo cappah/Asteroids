@@ -1,6 +1,7 @@
 package com.joshuawyllie.asteroidsgl.entity;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.joshuawyllie.asteroidsgl.event.Event;
 import com.joshuawyllie.asteroidsgl.event.EventType;
@@ -23,9 +24,7 @@ public class Player extends GLEntity {
     private int health = INIT_HEALTH;
 
     public Player(final float x, final float y) {
-        super();
-        _x = x;
-        _y = y;
+        super(x, y);
         _width = INIT_WIDTH;
         _height = INIT_HEIGHT;
         float vertices[] = { // in counterclockwise order:
@@ -82,20 +81,32 @@ public class Player extends GLEntity {
     @Override
     public void onEvent(Event event) {
         super.onEvent(event);
-        switch (event.getType()) {
-            case ASTEROID_SHOT:
-                if (event.getEntitiesInvolved().size() > 1) {
-                    final int size = ((Asteroid) event.getEntitiesInvolved().get(0)).getSize();
-                    score += size * SCORE_MULTIPLIER;
-                }
-                break;
+        try {
+            switch (event.getType()) {
+                case ASTEROID_SHOT:
+                    if (event.getEntitiesInvolved().size() > 1) {
+                        final int size = ((Asteroid) event.getEntitiesInvolved().get(0)).getSize();
+                        score += size * SCORE_MULTIPLIER;
+                    }
+                    break;
+                case DEATH:
+                    break;
+                case RESTART:
+                    health = INIT_HEALTH;
+                    score = 0;
+                    _x = INIT_X;
+                    _y = INIT_Y;
+                    break;
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getMessage());
         }
     }
 
     @Override
     public void onCollision(GLEntity that) {
         health--;
-        if (health < 0) {
+        if (health <= 0) {
             _isAlive = false;
             game.broadcastEvent(new Event(EventType.DEATH, this));
         }

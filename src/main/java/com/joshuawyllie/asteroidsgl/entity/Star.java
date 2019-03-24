@@ -7,9 +7,7 @@ public class Star extends GLEntity {
     private static Mesh m = null; //Q&D pool
 
     public Star(final float x, final float y) {
-        super();
-        _x = x;
-        _y = y;
+        super(x, y);
         _color[0] = Color.red(Color.YELLOW) / 255f;
         _color[1] = Color.green(Color.YELLOW) / 255f;
         _color[2] = Color.blue(Color.YELLOW) / 255f;

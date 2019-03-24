@@ -15,10 +15,12 @@ public class GLEntity implements EventReceiver {
     public static final float[] modelMatrix = new float[4 * 4];
     public static final float[] viewportModelMatrix = new float[4 * 4];
     public static final float[] rotationViewportModelMatrix = new float[4 * 4];
-    private static final float HIT_RADIUS_SCALAR = 0.4f;
+    private static final float HIT_RADIUS_SCALAR = 0.55f;
     public static Game game;
     Mesh mesh = null;
     float _color[] = {1.0f, 1.0f, 1.0f, 1.0f}; //default white
+    final float INIT_X;
+    final float INIT_Y;
     float _x = 0.0f;
     float _y = 0.0f;
     float _depth = 0.0f; //we'll use _depth for z-axis
@@ -31,7 +33,11 @@ public class GLEntity implements EventReceiver {
     float _height = 0.0f;
     public boolean _isAlive = true;
 
-    public GLEntity() {
+    public GLEntity(final float x, final float y) {
+        INIT_X = x;
+        INIT_Y = y;
+        this._x = x;
+        this._y = y;
         setColors(1, 1, 1, 1);  // default to white
     }
 

@@ -1,11 +1,14 @@
 package com.joshuawyllie.asteroidsgl.entity;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
+import com.joshuawyllie.asteroidsgl.event.Event;
 import com.joshuawyllie.asteroidsgl.util.Random;
 import com.joshuawyllie.asteroidsgl.util.Utils;
 
 public class Asteroid extends GLEntity {
+    private static final String TAG = "Asteroid";
     public static final int INIT_SIZE = 3;
     private static final float RADIUS_SIZE_3 = 4f;
     private static final float MAX_VEL = 14f;
@@ -18,6 +21,7 @@ public class Asteroid extends GLEntity {
     private double recoveryTimer = RECOVERY_TIME;
 
     public Asteroid(final float x, final float y, int size) {
+        super(x, y);
         if (size < 1) {
             size = 1;
         } else {
@@ -27,8 +31,6 @@ public class Asteroid extends GLEntity {
         if (points < 3) {
             points = 3;
         } //triangles or more, please. :)
-        _x = x;
-        _y = y;
         _width = RADIUS_SIZE_3 * size;
         _height = RADIUS_SIZE_3 * size;
         _velX = Random.between(MIN_VEL / size, MAX_VEL / size);
@@ -38,6 +40,7 @@ public class Asteroid extends GLEntity {
         final float[] verts = Mesh.generateLinePolygon(points, radius);
         mesh = new Mesh(verts, GLES20.GL_LINES);
         mesh.setWidthHeight(_width, _height);
+        game.registerEventReceiver(this);
     }
 
     @Override
@@ -52,6 +55,21 @@ public class Asteroid extends GLEntity {
                 recoveryTimer = RECOVERY_TIME;
                 isRecovering = false;
             }
+        }
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        super.onEvent(event);
+        try {
+            switch (event.getType()) {
+                case DEATH:
+                    _isAlive = false;
+                    game.unregisterEventReceiver(this);
+                    break;
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getMessage());
         }
     }
 

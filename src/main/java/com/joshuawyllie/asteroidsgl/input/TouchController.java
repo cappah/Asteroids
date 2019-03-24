@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.joshuawyllie.asteroidsgl.R;
 
-public class TouchController extends InputManager implements View.OnTouchListener {
+public class TouchController extends InputManager {
     public TouchController(View view) {
         view.findViewById(R.id.keypad_left).setOnTouchListener(this);
         view.findViewById(R.id.keypad_right).setOnTouchListener(this);
@@ -15,6 +15,7 @@ public class TouchController extends InputManager implements View.OnTouchListene
 
     @Override
     public boolean onTouch(final View v, final MotionEvent event) {
+        super.onTouch(v, event);
         final int action = event.getActionMasked();
         final int id = v.getId();
         if (action == MotionEvent.ACTION_DOWN) {

@@ -14,6 +14,7 @@ public class Bullet extends GLEntity {
     public float _ttl = TIME_TO_LIVE;
 
     public Bullet() {
+        super(0, 0);
         setColors(1, 0, 1, 1);
         mesh = BULLET_MESH; //all bullets use the exact same mesh
     }

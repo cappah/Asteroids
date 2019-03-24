@@ -18,9 +18,8 @@ public class Text extends GLEntity {
     private float _glyphHeight = GLYPH_HEIGHT;
 
     public Text(final String s, final float x, final float y) {
+        super(x, y);
         setString(s);
-        _x = x;
-        _y = y;
         setScale(SCALE);
     }
 
