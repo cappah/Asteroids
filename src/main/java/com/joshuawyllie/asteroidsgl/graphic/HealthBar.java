@@ -4,7 +4,6 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.joshuawyllie.asteroidsgl.entity.Mesh;
-import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 public class HealthBar {
     private static final float SCALE = 1f;
@@ -43,10 +42,10 @@ public class HealthBar {
     }
 
     public void render(float[] viewportMatrix) {
-       for (int i = 0; i < health; i++) {
+        for (int i = 0; i < health; i++) {
             final int OFFSET = 0;
             Matrix.setIdentityM(modelMatrix, OFFSET); //reset model matrix
-            Matrix.translateM(modelMatrix, OFFSET, x + (i * (healthIcon._width + SPACING)) , y, 0f);
+            Matrix.translateM(modelMatrix, OFFSET, x + (i * (healthIcon._width + SPACING)), y, 0f);
             Matrix.multiplyMM(viewportModelMatrix, OFFSET, viewportMatrix, OFFSET, modelMatrix, OFFSET);
             GLManager.draw(healthIcon, viewportModelMatrix, colour);
         }

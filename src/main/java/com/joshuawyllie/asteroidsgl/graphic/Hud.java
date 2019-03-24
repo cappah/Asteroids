@@ -33,7 +33,7 @@ public class Hud {
 
     private void reset() {
         texts.clear();
-        texts.put(TextKey.FPS, new Text(String.format(FPS_TEXT, fps), MARGIN,ViewPort.WORLD_HEIGHT - Text.GLYPH_HEIGHT * Text.SCALE - MARGIN));
+        texts.put(TextKey.FPS, new Text(String.format(FPS_TEXT, fps), MARGIN, ViewPort.WORLD_HEIGHT - Text.GLYPH_HEIGHT * Text.SCALE - MARGIN));
         texts.put(TextKey.SCORE, new Text(String.format(SCORE_TEXT, Player.INIT_HEALTH), MARGIN, MARGIN));
         texts.put(TextKey.LEVEL, new Text(String.format(LEVEL_TEXT, Game.INIT_LEVEL), MARGIN + FPS_TEXT.length() * Text.GLYPH_WIDTH, MARGIN));
     }

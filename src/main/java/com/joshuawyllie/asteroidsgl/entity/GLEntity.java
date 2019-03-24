@@ -15,9 +15,9 @@ public class GLEntity implements EventReceiver {
     public static final float[] modelMatrix = new float[4 * 4];
     public static final float[] viewportModelMatrix = new float[4 * 4];
     public static final float[] rotationViewportModelMatrix = new float[4 * 4];
-    private static final float HIT_RADIUS_SCALER = 0.7f;
+    private static final float HIT_RADIUS_SCALAR = 0.4f;
     public static Game game;
-    Mesh _mesh = null;
+    Mesh mesh = null;
     float _color[] = {1.0f, 1.0f, 1.0f, 1.0f}; //default white
     float _x = 0.0f;
     float _y = 0.0f;
@@ -69,8 +69,7 @@ public class GLEntity implements EventReceiver {
         //finally, multiply the rotated & scaled model matrix into the model-viewport matrix
         //creating the final rotationViewportModelMatrix that we pass on to OpenGL
         Matrix.multiplyMM(rotationViewportModelMatrix, OFFSET, viewportModelMatrix, OFFSET, modelMatrix, OFFSET);
-
-        GLManager.draw(_mesh, rotationViewportModelMatrix, _color);
+        GLManager.draw(mesh, rotationViewportModelMatrix, _color);
     }
 
     public boolean isDead() {
@@ -137,7 +136,7 @@ public class GLEntity implements EventReceiver {
         final float dx = a.centerX() - b.centerX(); //delta x
         final float dy = a.centerY() - b.centerY();
         final float distanceSq = (dx * dx + dy * dy);
-        final float minDistance = (a.radius() + b.radius()) * HIT_RADIUS_SCALER;
+        final float minDistance = (a.radius() + b.radius()) * HIT_RADIUS_SCALAR;
         final float minDistanceSq = minDistance * minDistance;
         return distanceSq < minDistanceSq;
     }
@@ -171,35 +170,35 @@ public class GLEntity implements EventReceiver {
 
 
     public float left() {
-        return _x + _mesh.left();
+        return _x + mesh.left();
     }
 
     public float right() {
-        return _x + _mesh.right();
+        return _x + mesh.right();
     }
 
     public void setLeft(final float leftEdgePosition) {
-        _x = leftEdgePosition - _mesh.left();
+        _x = leftEdgePosition - mesh.left();
     }
 
     public void setRight(final float rightEdgePosition) {
-        _x = rightEdgePosition - _mesh.right();
+        _x = rightEdgePosition - mesh.right();
     }
 
     public float top() {
-        return _y + _mesh.top();
+        return _y + mesh.top();
     }
 
     public float bottom() {
-        return _y + _mesh.bottom();
+        return _y + mesh.bottom();
     }
 
     public void setTop(final float topEdgePosition) {
-        _y = topEdgePosition - _mesh.top();
+        _y = topEdgePosition - mesh.top();
     }
 
     public void setBottom(final float bottomEdgePosition) {
-        _y = bottomEdgePosition - _mesh.bottom();
+        _y = bottomEdgePosition - mesh.bottom();
     }
 
     public PointF getPos() {

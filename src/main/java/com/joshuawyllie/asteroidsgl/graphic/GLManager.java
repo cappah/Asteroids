@@ -21,25 +21,8 @@ public class GLManager {
     private static int colorUniformHandle; //handle to the color setting
     private static int positionAttributeHandle; //handle to the vertex position setting
     private static int MVPMatrixHandle; //handle to the model-view-projection matrix
-
-    //shader source code (could be loaded from textfile!)
     private static String vertexShaderCode = "";
-//            =
-//            "uniform mat4 modelViewProjection;\n" + // A constant representing the combined model/view/projection matrix.
-//                    "attribute vec4 position;\n" +      // Per-vertex position information that we will pass in.
-//                    "void main() {\n" +                 // The entry point for our vertex shader.
-//                    "    gl_Position = modelViewProjection\n" +    // gl_Position is a special variable used to store the final position.
-//                    "        * position;\n" +// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
-//                    "    gl_PointSize = 7.0;\n" + //pixel width of points
-//                    "}\n";
-
     private static String fragmentShaderCode = "";
-//            =
-//            "precision mediump float;\n" + //we don't need high precision floats for fragments
-//                    "uniform vec4 color;\n" + // a constant color to apply to all pixels
-//                    "void main() {\n" + // The entry point for our fragment shader.
-//                    "  gl_FragColor = color;\n" + // Pass the color directly through the pipeline.
-//                    "}\n";
 
     public static void checkGLError(final String func) {
         int error;

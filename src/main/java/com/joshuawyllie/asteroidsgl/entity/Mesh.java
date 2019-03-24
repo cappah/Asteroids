@@ -19,7 +19,7 @@ public class Mesh {
     public static final int X = 0;
     public static final int Y = 1;
     public static final int Z = 2;
-    public static final float[] POINT = {0,0,0};
+    public static final float[] POINT = {0, 0, 0};
 
 
     public float _width = 0f;
@@ -152,8 +152,8 @@ public class Mesh {
     public void setWidthHeight(final double w, final double h) {
         normalize();  //a normalized mesh is centered at [0,0] and ranges from [-1,1]
         scale(w * 0.5, h * 0.5, 1.0); //meaning we now scale from the center, so *0.5 (radius)
-       // Utils.require(Math.abs(w - _width) < Float.MIN_NORMAL && Math.abs(h - _height) < Float.MIN_NORMAL,
-       //         "incorrect width / height after scaling!");
+        // Utils.require(Math.abs(w - _width) < Float.MIN_NORMAL && Math.abs(h - _height) < Float.MIN_NORMAL,
+        //         "incorrect width / height after scaling!");
     }
 
     public static float[] generateLinePolygon(final int numPoints, final double radius) {

@@ -7,6 +7,7 @@ import com.joshuawyllie.asteroidsgl.util.Utils;
 
 public class Asteroid extends GLEntity {
     public static final int INIT_SIZE = 3;
+    private static final float RADIUS_SIZE_3 = 4f;
     private static final float MAX_VEL = 14f;
     private static final float MIN_VEL = -14f;
     private static final double RECOVERY_TIME = 0.5F;
@@ -22,22 +23,21 @@ public class Asteroid extends GLEntity {
         } else {
             this.size = size;
         }
-        _scale = size / 3f;
         int points = size + 3;
         if (points < 3) {
             points = 3;
         } //triangles or more, please. :)
         _x = x;
         _y = y;
-        _width = 12;
-        _height = _width;
+        _width = RADIUS_SIZE_3 * size;
+        _height = RADIUS_SIZE_3 * size;
         _velX = Random.between(MIN_VEL / size, MAX_VEL / size);
         _velY = Random.between(MIN_VEL / size, MAX_VEL / size);
-        _angVel = Random.between(MIN_VEL * ANG_VEL_SCALAR, MAX_VEL * ANG_VEL_SCALAR);
+        _angVel = Random.between(MIN_VEL * ANG_VEL_SCALAR / size, MAX_VEL * ANG_VEL_SCALAR / size);
         final double radius = _width * 0.5;
         final float[] verts = Mesh.generateLinePolygon(points, radius);
-        _mesh = new Mesh(verts, GLES20.GL_LINES);
-        _mesh.setWidthHeight(_width, _height);
+        mesh = new Mesh(verts, GLES20.GL_LINES);
+        mesh.setWidthHeight(_width, _height);
     }
 
     @Override

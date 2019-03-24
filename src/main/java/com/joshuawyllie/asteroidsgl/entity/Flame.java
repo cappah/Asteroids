@@ -29,19 +29,19 @@ public class Flame extends GLEntity {
                 -0.5f, 0.5f, 0.0f,
 
         };
-        _mesh = new Mesh(vertices, GLES20.GL_TRIANGLES);
-        _mesh.setWidthHeight(_width, _height);
+        mesh = new Mesh(vertices, GLES20.GL_TRIANGLES);
+        mesh.setWidthHeight(_width, _height);
     }
 
-   public void followEntity(GLEntity entity) {
+    public void followEntity(GLEntity entity) {
         _x = entity._x + (float) Math.sin(_rotation * Utils.TO_RAD) * entity._height * ENTITY_OFFSET;
         _y = entity._y - (float) Math.cos(_rotation * Utils.TO_RAD) * entity._height * ENTITY_OFFSET;
-       _rotation = entity._rotation + (float) Utils.CIRCLE_DEG * 0.5f;
-   }
+        _rotation = entity._rotation + (float) Utils.CIRCLE_DEG * 0.5f;
+    }
 
     public void setSize(final float width, final float height) {
         this._width = width;
         this._height = height;
-        _mesh.setWidthHeight(_width, _height);
+        mesh.setWidthHeight(_width, _height);
     }
 }

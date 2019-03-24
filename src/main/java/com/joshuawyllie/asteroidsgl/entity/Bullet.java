@@ -9,13 +9,13 @@ import com.joshuawyllie.asteroidsgl.util.Utils;
 public class Bullet extends GLEntity {
     private static Mesh BULLET_MESH = new Mesh(Mesh.POINT, GLES20.GL_POINTS); //Q&D pool, Mesh.POINT is just [0,0,0] float array
     private static final float SPEED = 120f;
-    public static final float TIME_TO_LIVE = 3.0f; //seconds
+    public static final float TIME_TO_LIVE = 1.7f; //seconds
 
     public float _ttl = TIME_TO_LIVE;
 
     public Bullet() {
         setColors(1, 0, 1, 1);
-        _mesh = BULLET_MESH; //all bullets use the exact same mesh
+        mesh = BULLET_MESH; //all bullets use the exact same mesh
     }
 
     public void fireFrom(GLEntity source) {
@@ -36,7 +36,7 @@ public class Bullet extends GLEntity {
 
     @Override
     public boolean isDead() {
-        return _ttl < 1;
+        return _ttl < 0;
     }
 
     @Override

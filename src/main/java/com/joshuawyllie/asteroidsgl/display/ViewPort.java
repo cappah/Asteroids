@@ -8,7 +8,8 @@ import com.joshuawyllie.asteroidsgl.entity.GLEntity;
 import com.joshuawyllie.asteroidsgl.event.Event;
 
 public class ViewPort {
-    public enum ViewPortMode { LETTER_BOX, FILL }
+    public enum ViewPortMode {LETTER_BOX, FILL}
+
     public static final float WORLD_WIDTH = 160f; //all dimensions are in meters
     public static float WORLD_HEIGHT = 90f;
     private static float ZOOM = 1f;     // partial implementation
@@ -30,6 +31,7 @@ public class ViewPort {
 
     /**
      * Defaults to letter boxing the screen
+     *
      * @param context
      */
     public ViewPort(final Context context, final ViewPortMode mode) {

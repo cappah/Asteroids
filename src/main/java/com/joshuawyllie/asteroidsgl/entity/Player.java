@@ -33,11 +33,11 @@ public class Player extends GLEntity {
                 -0.5f, -0.5f, 0.0f,    // bottom left
                 0.5f, -0.5f, 0.0f    // bottom right
         };
-        _mesh = new Mesh(vertices, GLES20.GL_TRIANGLES);
-        _mesh.setWidthHeight(_width, _height);
-        _mesh.flipY();
+        mesh = new Mesh(vertices, GLES20.GL_TRIANGLES);
+        mesh.setWidthHeight(_width, _height);
+        mesh.flipY();
         flame = new Flame(_x, _y);
-        flame.setSize(_width * 0.5f,_height * 0.5f);
+        flame.setSize(_width * 0.5f, _height * 0.5f);
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.entity.Asteroid;
 import com.joshuawyllie.asteroidsgl.entity.Border;
 import com.joshuawyllie.asteroidsgl.entity.Bullet;
+import com.joshuawyllie.asteroidsgl.entity.Explosion;
 import com.joshuawyllie.asteroidsgl.entity.GLEntity;
 import com.joshuawyllie.asteroidsgl.entity.Player;
 import com.joshuawyllie.asteroidsgl.entity.Star;
@@ -48,7 +49,9 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     private ArrayList<Star> _stars = new ArrayList<>();
     private ArrayList<Asteroid> asteroids = new ArrayList<>();
     Bullet[] _bullets = new Bullet[BULLET_COUNT];
-    private ArrayList<Asteroid> entitiesToAdd = new ArrayList<>();
+    private ArrayList<Asteroid> asteroidsToAdd = new ArrayList<>();
+    private ArrayList<Explosion> explosions = new ArrayList<>();
+    private ArrayList<Explosion> explosionsToAdd = new ArrayList<>();
 
     //trying a fixed time-step with accumulator, courtesy of
 //   https://gafferongames.com/post/fix_your_timestep/
@@ -88,6 +91,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         for (int i = 0; i < BULLET_COUNT; i++) {
             _bullets[i] = new Bullet();
         }
+        explosions.add(new Explosion(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2));
         eventReceivers.add(jukebox);
         eventReceivers.add(player);
         setRenderer(this);
@@ -143,9 +147,12 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
                 } //skip
                 b.update(dt);
             }
+            for (Explosion explosion : explosions) {
+                explosion.update(dt);
+            }
             collisionDetection();
             removeDeadEntities();
-            addAsteroids();
+            addEntitiesToAdd();
             updateLevel();
             accumulator -= dt;
         }
@@ -177,6 +184,9 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
             b.render(viewPort.getViewportMatrix());
         }
         player.render(viewPort.getViewportMatrix());
+        for (Explosion explosion : explosions) {
+            explosion.render(viewPort.getViewportMatrix());
+        }
     }
 
     private void collisionDetection() {
@@ -189,13 +199,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
                     if (asteroid.isDead() || asteroid.isRecovering()) {
                         continue;
                     }
-                    bullet.onCollision(asteroid); //notify each entity so they can decide what to do
-                    asteroid.onCollision(bullet);
-                    if (asteroid.getSize() > 1) {
-                        entitiesToAdd.add(new Asteroid(asteroid.getX(), asteroid.getY(), asteroid.getSize() - 1));
-                        entitiesToAdd.add(new Asteroid(asteroid.getX(), asteroid.getY(), asteroid.getSize() - 1));
-                    }
-                    broadcastEvent(new Event(EventType.ASTEROID_SHOT, asteroid, bullet));
+                    onAsteroidShot(bullet, asteroid);
                 }
             }
         }
@@ -211,6 +215,17 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
         }
     }
 
+    private void onAsteroidShot(Bullet bullet, Asteroid asteroid) {
+        bullet.onCollision(asteroid); //notify each entity so they can decide what to do
+        asteroid.onCollision(bullet);
+        if (asteroid.getSize() > 1) {
+            asteroidsToAdd.add(new Asteroid(asteroid.getX(), asteroid.getY(), asteroid.getSize() - 1));
+            asteroidsToAdd.add(new Asteroid(asteroid.getX(), asteroid.getY(), asteroid.getSize() - 1));
+        }
+        explosionsToAdd.add(new Explosion(asteroid.getX(), asteroid.getY()));
+        broadcastEvent(new Event(EventType.ASTEROID_SHOT, asteroid, bullet));
+    }
+
     public void broadcastEvent(Event event) {
         for (EventReceiver eventReceiver : eventReceivers) {
             eventReceiver.onEvent(event);
@@ -218,21 +233,29 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     }
 
     private void removeDeadEntities() {
-        Asteroid temp;
-        final int count = asteroids.size();
+        Asteroid tempA;
+        int count = asteroids.size();
         for (int i = count - 1; i >= 0; i--) {
-            temp = asteroids.get(i);
-            if (temp.isDead()) {
+            tempA = asteroids.get(i);
+            if (tempA.isDead()) {
                 asteroids.remove(i);
+            }
+        }
+        Explosion tempE;
+        count = explosions.size();
+        for (int i = count - 1; i >= 0; i--) {
+            tempE = explosions.get(i);
+            if (tempE.isDead()) {
+                explosions.remove(i);
             }
         }
     }
 
-    private void addAsteroids() {
-        for (Asteroid entity : entitiesToAdd) {
-            asteroids.add((Asteroid) entity);
-        }
-        entitiesToAdd.clear();
+    private void addEntitiesToAdd() {
+        asteroids.addAll(asteroidsToAdd);
+        asteroidsToAdd.clear();
+        explosions.addAll(explosionsToAdd);
+        explosionsToAdd.clear();
     }
 
     public boolean maybeFireBullet(final GLEntity source) {

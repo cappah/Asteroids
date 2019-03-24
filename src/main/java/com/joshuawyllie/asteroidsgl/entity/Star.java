@@ -18,6 +18,6 @@ public class Star extends GLEntity {
             final float[] vertices = {0, 0, 0};
             m = new Mesh(vertices, GLES20.GL_POINTS);
         }
-        _mesh = m; //all Stars use the exact same Mesh instance.
+        mesh = m; //all Stars use the exact same Mesh instance.
     }
 }
