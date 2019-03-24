@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">AsteroidsGL</string>
     <string name="shoot_sound">sfx/shoot.wav</string>
+    <string name="fragment_shader_path">data/fragment_shader.txt</string>
+    <string name="vertext_shader_path">data/vertex_shader.txt</string>
 </resources>

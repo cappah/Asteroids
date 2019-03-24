@@ -1,10 +1,15 @@
 package com.joshuawyllie.asteroidsgl.graphic;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.joshuawyllie.asteroidsgl.R;
 import com.joshuawyllie.asteroidsgl.entity.Mesh;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 
 public class GLManager {
@@ -18,21 +23,23 @@ public class GLManager {
     private static int MVPMatrixHandle; //handle to the model-view-projection matrix
 
     //shader source code (could be loaded from textfile!)
-    private final static String vertexShaderCode =
-            "uniform mat4 modelViewProjection;\n" + // A constant representing the combined model/view/projection matrix.
-                    "attribute vec4 position;\n" +      // Per-vertex position information that we will pass in.
-                    "void main() {\n" +                 // The entry point for our vertex shader.
-                    "    gl_Position = modelViewProjection\n" +    // gl_Position is a special variable used to store the final position.
-                    "        * position;\n" +// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
-                    "    gl_PointSize = 7.0;\n" + //pixel width of points
-                    "}\n";
+    private static String vertexShaderCode = "";
+//            =
+//            "uniform mat4 modelViewProjection;\n" + // A constant representing the combined model/view/projection matrix.
+//                    "attribute vec4 position;\n" +      // Per-vertex position information that we will pass in.
+//                    "void main() {\n" +                 // The entry point for our vertex shader.
+//                    "    gl_Position = modelViewProjection\n" +    // gl_Position is a special variable used to store the final position.
+//                    "        * position;\n" +// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.
+//                    "    gl_PointSize = 7.0;\n" + //pixel width of points
+//                    "}\n";
 
-    private final static String fragmentShaderCode =
-            "precision mediump float;\n" + //we don't need high precision floats for fragments
-                    "uniform vec4 color;\n" + // a constant color to apply to all pixels
-                    "void main() {\n" + // The entry point for our fragment shader.
-                    "  gl_FragColor = color;\n" + // Pass the color directly through the pipeline.
-                    "}\n";
+    private static String fragmentShaderCode = "";
+//            =
+//            "precision mediump float;\n" + //we don't need high precision floats for fragments
+//                    "uniform vec4 color;\n" + // a constant color to apply to all pixels
+//                    "void main() {\n" + // The entry point for our fragment shader.
+//                    "  gl_FragColor = color;\n" + // Pass the color directly through the pipeline.
+//                    "}\n";
 
     public static void checkGLError(final String func) {
         int error;
@@ -61,21 +68,39 @@ public class GLManager {
         return handle;
     }
 
-    public static void buildProgram() {
-        final int vertex = compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        final int fragment = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-        glProgramHandle = linkShaders(vertex, fragment);
-        // delete the shaders as they're linked into our program now and no longer necessary
-        GLES20.glDeleteShader(vertex);
-        GLES20.glDeleteShader(fragment);
-        //get the handles to our shader settings so that we can manipulate these later
-        positionAttributeHandle = GLES20.glGetAttribLocation(glProgramHandle, "position");
-        colorUniformHandle = GLES20.glGetUniformLocation(glProgramHandle, "color");
-        MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection");
-        //activate the program
-        GLES20.glUseProgram(glProgramHandle);
-        GLES20.glLineWidth(4f); //draw lines 5px wide
-        checkGLError("buildProgram");
+    public static void buildProgram(Context context) {
+        try {
+            loadProgramSource(context);
+        } catch (IOException exception) {
+            Log.e(TAG, exception.getMessage());
+        } finally {
+            final int vertex = compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+            final int fragment = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+            glProgramHandle = linkShaders(vertex, fragment);
+            // delete the shaders as they're linked into our program now and no longer necessary
+            GLES20.glDeleteShader(vertex);
+            GLES20.glDeleteShader(fragment);
+            //get the handles to our shader settings so that we can manipulate these later
+            positionAttributeHandle = GLES20.glGetAttribLocation(glProgramHandle, "position");
+            colorUniformHandle = GLES20.glGetUniformLocation(glProgramHandle, "color");
+            MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection");
+            //activate the program
+            GLES20.glUseProgram(glProgramHandle);
+            GLES20.glLineWidth(4f); //draw lines 5px wide
+            checkGLError("buildProgram");
+        }
+    }
+
+    private static void loadProgramSource(Context context) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(context.getAssets().open(context.getString(R.string.vertext_shader_path))));
+        String programLine;
+        while ((programLine = reader.readLine()) != null) {
+            vertexShaderCode += programLine;
+        }
+        reader = new BufferedReader(new InputStreamReader(context.getAssets().open(context.getString(R.string.fragment_shader_path))));
+        while ((programLine = reader.readLine()) != null) {
+            fragmentShaderCode += programLine;
+        }
     }
 
     private static void setModelViewProjection(final float[] modelViewMatrix) {

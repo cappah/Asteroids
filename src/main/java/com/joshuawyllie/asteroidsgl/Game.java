@@ -29,7 +29,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
-    private static final int BG_COLOUR = Color.rgb(0, 0, 25);
+    private static final int BG_COLOUR = Color.rgb(0, 0, 15);
     private static final int STAR_COUNT = 100;
     private static final int INIT_ASTEROID_COUNT = 4;
     private static final int BULLET_COUNT = (int) (Bullet.TIME_TO_LIVE / Player.TIME_BETWEEN_SHOTS) + 1;
@@ -97,7 +97,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         //build program (shaders)
         //tell opengl to use program (our shaders)
-        GLManager.buildProgram();
+        GLManager.buildProgram(context);
         float red = Color.red(BG_COLOUR) / 255f;
         float green = Color.green(BG_COLOUR) / 255f;
         float blue = Color.blue(BG_COLOUR) / 255f;

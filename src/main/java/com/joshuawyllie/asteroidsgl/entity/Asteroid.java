@@ -10,25 +10,11 @@ public class Asteroid extends GLEntity {
     private static final float MAX_VEL = 14f;
     private static final float MIN_VEL = -14f;
     private static final double RECOVERY_TIME = 0.5F;
+    private static final float ANG_VEL_SCALAR = 0.5f;
     private int size = INIT_SIZE;
     private boolean isRecovering = true;
     private double currentTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
     private double recoveryTimer = RECOVERY_TIME;
-
-    @Override
-    public void update(double dt) {
-        super.update(dt);
-        final double newTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
-        final double frameTime = newTime - currentTime;
-        currentTime = newTime;
-        if (isRecovering) {
-            recoveryTimer -= frameTime;
-            if (recoveryTimer < 0) {
-                recoveryTimer = RECOVERY_TIME;
-                isRecovering = false;
-            }
-        }
-    }
 
     public Asteroid(final float x, final float y, int size) {
         if (size < 1) {
@@ -45,13 +31,28 @@ public class Asteroid extends GLEntity {
         _y = y;
         _width = 12;
         _height = _width;
-        _velX = Random.between(MIN_VEL * 2, MAX_VEL * 2);
-        _velY = Random.between(MIN_VEL * 2, MAX_VEL * 2);
-        _angVel = Random.between(MIN_VEL * 1, MAX_VEL * 1);
+        _velX = Random.between(MIN_VEL / size, MAX_VEL / size);
+        _velY = Random.between(MIN_VEL / size, MAX_VEL / size);
+        _angVel = Random.between(MIN_VEL * ANG_VEL_SCALAR, MAX_VEL * ANG_VEL_SCALAR);
         final double radius = _width * 0.5;
         final float[] verts = Mesh.generateLinePolygon(points, radius);
         _mesh = new Mesh(verts, GLES20.GL_LINES);
         _mesh.setWidthHeight(_width, _height);
+    }
+
+    @Override
+    public void update(double dt) {
+        super.update(dt);
+        final double newTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
+        final double frameTime = newTime - currentTime;
+        currentTime = newTime;
+        if (isRecovering) {
+            recoveryTimer -= frameTime;
+            if (recoveryTimer < 0) {
+                recoveryTimer = RECOVERY_TIME;
+                isRecovering = false;
+            }
+        }
     }
 
     public float getX() {
