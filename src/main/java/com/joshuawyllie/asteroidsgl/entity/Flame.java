@@ -42,5 +42,6 @@ public class Flame extends GLEntity {
     public void setSize(final float width, final float height) {
         this._width = width;
         this._height = height;
+        _mesh.setWidthHeight(_width, _height);
     }
 }

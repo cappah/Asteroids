@@ -20,11 +20,11 @@ public class Event {
         }
     }
 
-    public Event(EventType type) {
-        this(type, null);
-    }
-
     public EventType getType() {
         return type;
+    }
+
+    public ArrayList<GLEntity> getEntitiesInvolved() {
+        return entities;
     }
 }

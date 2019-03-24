@@ -1,23 +1,22 @@
 package com.joshuawyllie.asteroidsgl.entity;
 
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 import com.joshuawyllie.asteroidsgl.event.Event;
 import com.joshuawyllie.asteroidsgl.event.EventType;
-import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 import com.joshuawyllie.asteroidsgl.util.Utils;
 
 public class Player extends GLEntity {
-    public static final float TIME_BETWEEN_SHOTS = 0.25f; //seconds. TODO: game play setting!
-    private static final float INIT_WIDTH = 8f;
-    private static final float INIT_HEIGHT = 12f;
+    public static final float TIME_BETWEEN_SHOTS = 0.25f; //seconds
+    private static final float INIT_WIDTH = 4f;
+    private static final float INIT_HEIGHT = 6f;
     public static final int INIT_HEALTH = 3;
+    private static final int SCORE_MULTIPLIER = 100;
     private float _bulletCooldown = 0;
     private static final String TAG = "Player";
-    static final float ROTATION_VELOCITY = 360f; //TODO: game play values!
-    static final float THRUST = 8f;
-    static final float DRAG = 0.99f;
+    static final float ROTATION_VELOCITY = 360f;
+    static final float THRUST = 3.5f;
+    static final float DRAG = 0.987f;
     private boolean isBoosting = false;
     private Flame flame = null;
     private int score = 0;
@@ -38,7 +37,7 @@ public class Player extends GLEntity {
         _mesh.setWidthHeight(_width, _height);
         _mesh.flipY();
         flame = new Flame(_x, _y);
-        flame.setSize(_width / 2f, _height / 2f);
+        flame.setSize(_width * 0.5f,_height * 0.5f);
     }
 
     @Override
@@ -85,7 +84,10 @@ public class Player extends GLEntity {
         super.onEvent(event);
         switch (event.getType()) {
             case ASTEROID_SHOT:
-                score += 100;
+                if (event.getEntitiesInvolved().size() > 1) {
+                    final int size = ((Asteroid) event.getEntitiesInvolved().get(0)).getSize();
+                    score += size * SCORE_MULTIPLIER;
+                }
                 break;
         }
     }

@@ -8,8 +8,8 @@ import com.joshuawyllie.asteroidsgl.graphic.GLManager;
 
 public class HealthBar {
     private static final float SCALE = 1f;
-    private static final double WIDTH = 3F;
-    private static final double HEIGHT = 6F;
+    private static final double WIDTH = 2F;
+    private static final double HEIGHT = 4F;
     private static final float SPACING = 1f;
     public static final float[] modelMatrix = new float[4 * 4];
     public static final float[] viewportModelMatrix = new float[4 * 4];

@@ -1,5 +1,6 @@
 package com.joshuawyllie.asteroidsgl.graphic;
 
+import com.joshuawyllie.asteroidsgl.Game;
 import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.entity.Border;
 import com.joshuawyllie.asteroidsgl.entity.Player;
@@ -17,6 +18,7 @@ enum TextKey {
 public class Hud {
     private static final String FPS_TEXT = "FPS: %s";
     private static final String SCORE_TEXT = "Score: %s";
+    private static final String LEVEL_TEXT = "Level: %s";
     private static final float MARGIN = 2f + Border.BORDER_MARGIN;
     private double fpsTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
     private int fpsCounter = 0;
@@ -31,13 +33,14 @@ public class Hud {
 
     private void reset() {
         texts.clear();
-        texts.put(TextKey.FPS, new Text(String.format(FPS_TEXT, fps), MARGIN,ViewPort.WORLD_HEIGHT - Text.GLYPH_HEIGHT));
+        texts.put(TextKey.FPS, new Text(String.format(FPS_TEXT, fps), MARGIN,ViewPort.WORLD_HEIGHT - Text.GLYPH_HEIGHT * Text.SCALE - MARGIN));
         texts.put(TextKey.SCORE, new Text(String.format(SCORE_TEXT, Player.INIT_HEALTH), MARGIN, MARGIN));
-        texts.put(TextKey.LEVEL, new Text("Level: ", MARGIN + FPS_TEXT.length() * Text.GLYPH_WIDTH, MARGIN));
+        texts.put(TextKey.LEVEL, new Text(String.format(LEVEL_TEXT, Game.INIT_LEVEL), MARGIN + FPS_TEXT.length() * Text.GLYPH_WIDTH, MARGIN));
     }
 
-    public void update(double dt, int score, int health) {
+    public void update(double dt, int score, int health, int level) {
         texts.get(TextKey.SCORE).setString(String.format(SCORE_TEXT, score));
+        texts.get(TextKey.LEVEL).setString(String.format(LEVEL_TEXT, level));
         healthBar.update(dt, health);
     }
 

@@ -8,7 +8,7 @@ import com.joshuawyllie.asteroidsgl.util.Utils;
 
 public class Bullet extends GLEntity {
     private static Mesh BULLET_MESH = new Mesh(Mesh.POINT, GLES20.GL_POINTS); //Q&D pool, Mesh.POINT is just [0,0,0] float array
-    private static final float SPEED = 120f; //TODO: game play settings
+    private static final float SPEED = 120f;
     public static final float TIME_TO_LIVE = 3.0f; //seconds
 
     public float _ttl = TIME_TO_LIVE;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="bottom"
     android:padding="@dimen/keypad_size"
     android:layout_width="match_parent"
@@ -11,7 +12,8 @@
         android:layout_width="@dimen/keypad_size"
         android:layout_height="@dimen/keypad_size"
         android:layout_alignParentStart="true"
-        android:background="@drawable/ic_left_arrow" />
+        android:background="@drawable/ic_left_arrow"
+        android:backgroundTint="@android:color/white" />
 
     <Button
         android:id="@+id/keypad_right"
@@ -19,14 +21,16 @@
         android:layout_height="@dimen/keypad_size"
         android:layout_marginStart="48dp"
         android:layout_toEndOf="@+id/keypad_left"
-        android:background="@drawable/ic_right_arrow" />
+        android:background="@drawable/ic_right_arrow"
+        android:backgroundTint="@android:color/white" />
 
     <Button
         android:id="@+id/keypad_b"
         android:layout_width="@dimen/keypad_size"
         android:layout_height="@dimen/keypad_size"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_up_arrow" />
+        android:background="@drawable/ic_up_arrow"
+        android:backgroundTint="@android:color/white" />
 
     <Button
         android:id="@+id/keypad_a"
@@ -34,5 +38,6 @@
         android:layout_height="@dimen/keypad_size"
         android:layout_marginEnd="48dp"
         android:layout_toStartOf="@+id/keypad_b"
-        android:background="@drawable/ic_shoot" />
+        android:background="@drawable/ic_shoot"
+        android:backgroundTint="@android:color/white" />
 </RelativeLayout>

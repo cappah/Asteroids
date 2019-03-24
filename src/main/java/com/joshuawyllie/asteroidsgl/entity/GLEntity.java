@@ -15,6 +15,7 @@ public class GLEntity implements EventReceiver {
     public static final float[] modelMatrix = new float[4 * 4];
     public static final float[] viewportModelMatrix = new float[4 * 4];
     public static final float[] rotationViewportModelMatrix = new float[4 * 4];
+    private static final float HIT_RADIUS_SCALER = 0.7f;
     public static Game game;
     Mesh _mesh = null;
     float _color[] = {1.0f, 1.0f, 1.0f, 1.0f}; //default white
@@ -136,7 +137,7 @@ public class GLEntity implements EventReceiver {
         final float dx = a.centerX() - b.centerX(); //delta x
         final float dy = a.centerY() - b.centerY();
         final float distanceSq = (dx * dx + dy * dy);
-        final float minDistance = a.radius() + b.radius();
+        final float minDistance = (a.radius() + b.radius()) * HIT_RADIUS_SCALER;
         final float minDistanceSq = minDistance * minDistance;
         return distanceSq < minDistanceSq;
     }
