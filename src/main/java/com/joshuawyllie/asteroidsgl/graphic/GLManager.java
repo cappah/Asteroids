@@ -15,6 +15,7 @@ import java.nio.FloatBuffer;
 public class GLManager {
     public final static String TAG = "GLManager";
     private static final int OFFSET = 0; //just to have a name for the parameter
+    private static final float INIT_LINE_WIDTH = 4f;
 
     //handles to various GL objects:
     private static int glProgramHandle; //handle to the compiled shader program
@@ -69,7 +70,7 @@ public class GLManager {
             MVPMatrixHandle = GLES20.glGetUniformLocation(glProgramHandle, "modelViewProjection");
             //activate the program
             GLES20.glUseProgram(glProgramHandle);
-            GLES20.glLineWidth(4f); //draw lines 5px wide
+            GLES20.glLineWidth(INIT_LINE_WIDTH); //draw lines 5px wide
             checkGLError("buildProgram");
         }
     }

@@ -1,7 +1,5 @@
 package com.joshuawyllie.asteroidsgl.graphic;
 
-import android.view.View;
-
 import com.joshuawyllie.asteroidsgl.Game;
 import com.joshuawyllie.asteroidsgl.display.ViewPort;
 import com.joshuawyllie.asteroidsgl.entity.Border;
@@ -25,7 +23,7 @@ public class Hud implements EventReceiver {
     private static final String SCORE_TEXT = "Score: %s";
     private static final String LEVEL_TEXT = "Level: %s";
     private static final String GAME_OVER_TEXT = "GAME OVER";
-    private static final float MARGIN = 2f + Border.BORDER_MARGIN;
+    private static final float MARGIN = 2f + Border.MARGIN;
     private double fpsTime = System.nanoTime() * Utils.NANOSECONDS_TO_SECONDS;
     private int fpsCounter = 0;
     private String fps = "0";

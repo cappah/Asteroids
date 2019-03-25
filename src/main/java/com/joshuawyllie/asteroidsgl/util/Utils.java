@@ -11,6 +11,7 @@ public abstract class Utils {
     public static final float NANOSECONDS_TO_MILLISECONDS = 1.0f / MILLISECOND_IN_NANOSECONDS;
     public static final long SECOND_IN_NANOSECONDS = 1000000000;
     public static final float NANOSECONDS_TO_SECONDS = 1.0f / SECOND_IN_NANOSECONDS;
+    public static final float RGB_TO_FLOAT = 1f / 255f;
 
     public static float wrap(float value, final float min, final float max) {
         if (value < min) {

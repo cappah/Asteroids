@@ -12,7 +12,7 @@ public class Player extends GLEntity {
     private static final float INIT_WIDTH = 4f;
     private static final float INIT_HEIGHT = 6f;
     public static final int INIT_HEALTH = 3;
-    private static final int SCORE_MULTIPLIER = 100;
+    private static final int SCORE_MULTIPLIER = 10;
     private float _bulletCooldown = 0;
     private static final String TAG = "Player";
     static final float ROTATION_VELOCITY = 360f;

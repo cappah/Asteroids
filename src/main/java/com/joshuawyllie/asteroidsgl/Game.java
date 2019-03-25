@@ -28,7 +28,6 @@ import com.joshuawyllie.asteroidsgl.util.Utils;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -89,7 +88,7 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer, Event
         GLEntity.setGame(this);
         viewPort = new ViewPort(context, ViewPort.ViewPortMode.FILL);
         jukebox = new Jukebox(context);
-        // todo: uncomment this line again jukebox.resumeBgMusic();
+        jukebox.resumeBgMusic();
         hud = new Hud(Player.INIT_HEALTH);
         border = new Border(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2, ViewPort.WORLD_WIDTH, ViewPort.WORLD_HEIGHT);
         player = new Player(ViewPort.WORLD_WIDTH / 2, ViewPort.WORLD_HEIGHT / 2);
@@ -115,9 +114,9 @@ public class Game extends GLSurfaceView implements GLSurfaceView.Renderer, Event
         //build program (shaders)
         //tell opengl to use program (our shaders)
         GLManager.buildProgram(context);
-        float red = Color.red(BG_COLOUR) / 255f;
-        float green = Color.green(BG_COLOUR) / 255f;
-        float blue = Color.blue(BG_COLOUR) / 255f;
+        float red = Color.red(BG_COLOUR) * Utils.RGB_TO_FLOAT;
+        float green = Color.green(BG_COLOUR) * Utils.RGB_TO_FLOAT;
+        float blue = Color.blue(BG_COLOUR) * Utils.RGB_TO_FLOAT;
         float alpha = 1f;
         GLES20.glClearColor(red, green, blue, alpha);
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();

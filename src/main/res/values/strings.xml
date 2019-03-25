@@ -3,4 +3,8 @@
     <string name="shoot_sound">sfx/shoot.wav</string>
     <string name="fragment_shader_path">data/fragment_shader.txt</string>
     <string name="vertext_shader_path">data/vertex_shader.txt</string>
+    <string name="shoot_sound_file">sfx/shoot.wav</string>
+    <string name="hit_sound_file">sfx/hit.wav</string>
+    <string name="asteroid_break_sound_file">sfx/asteroid_break.wav</string>
+    <string name="death_sound_effect">sfx/death.wav</string>
 </resources>
